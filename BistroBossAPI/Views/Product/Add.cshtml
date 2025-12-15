@@ -1,0 +1,138 @@
+﻿@model Produkt
+
+@{
+    ViewData["Title"] = "BistroBoss - Dodanie produktu";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["ErrorMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["SuccessMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<style>
+    .card {
+        background-color: #444444 !important;
+        color: #f1f1f1 !important;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        transition: none;
+    }
+
+    .card-header {
+        background-color: #1a237e;
+        color: white !important;
+        text-align: center;
+        border-radius: 10px 10px 0 0;
+        border-bottom: none;
+    }
+
+        .card-header h3 {
+            color: white !important;
+        }
+
+    .form-label {
+        color: #f1f1f1;
+        font-weight: 600;
+    }
+
+    textarea.form-control,
+    input.form-control {
+        background-color: white !important;
+        color: #212529 !important;
+        border: 1px solid #ccc !important;
+        box-shadow: 0 .1rem .3rem rgba(0, 0, 0, .1) !important;
+    }
+
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 0.3rem;
+        font-size: 2rem;
+    }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star-rating input:checked ~ label {
+            color: #ffc107;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #ccc;
+        }
+
+        .star-rating label {
+            pointer-events: auto;
+        }
+</style>
+
+<div class="container py-3 mb-5 main">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header">
+                    <h3 class="mb-0">Dodaj produkt</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Product" asp-action="Add" method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="Nazwa" class="form-label">Nazwa</label>
+                                    <input type="text" class="form-control shadow-sm" asp-for="Nazwa" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="Opis" class="form-label">Opis</label>
+                                    <textarea class="form-control shadow-sm" asp-for="Opis" rows="5" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="Cena" class="form-label">Cena</label>
+                                    <input type="number" class="form-control shadow-sm" asp-for="Cena" required min="0.01" step="0.01" />
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="CzasPrzygotowania" class="form-label">Czas przygotowania</label>
+                                    <input type="number" class="form-control shadow-sm" asp-for="CzasPrzygotowania" required min="0" />
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="KategoriaId" class="form-label">Kategoria</label>
+                                    <select asp-for="KategoriaId" class="form-select shadow-sm" asp-items="ViewBag.ListaKategorii"></select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Brak kategorii produktu na liście? Dodaj ją!</label>
+                                    <input type="text" class="form-control shadow-sm" name="nowaKategoria" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Zdjęcie produktu</label>
+                                    <input type="file" name="zdjeciePlik" class="form-control shadow-sm" accept="image/*" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-success btn-lg shadow-sm">Dodaj produkt</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

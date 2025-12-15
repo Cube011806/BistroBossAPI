@@ -1,0 +1,82 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<Uzytkownik> UserManager
+
+@{
+    ViewData["Title"] = "Zarządzanie restauracją";
+    var id = UserManager.GetUserId(User);
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["ErrorMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["SuccessMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<style>
+    .card.custom-dark {
+        background-color: #444444 !important;
+        color: white;
+        border: none;
+        border-radius: 10px;
+    }
+
+    .card-header.custom-header {
+        background-color: #1a237e !important;
+        color: white !important;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .card-body.custom-body {
+        background-color: #444444 !important;
+        color: white;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        padding: 1rem;
+    }
+</style>
+
+@if (User.Identity.IsAuthenticated && UserManager.FindByIdAsync(id).Result.AccessLevel > 0)
+{
+    <div class="container mt-5 d-flex justify-content-center">
+        <div class="card custom-dark shadow-sm col-md-6">
+            <div class="card-header custom-header">
+                <h2>Zarządzanie restauracją</h2>
+            </div>
+            <div class="card-body custom-body text-center">
+                <div class="d-grid gap-3">
+                    <a asp-controller="Product" asp-action="Add" class="btn btn-success btn-lg">
+                        <i class="bi bi-plus-lg"></i> Dodaj produkt
+                    </a>
+                    <a asp-action="ShowAllOrders" class="btn btn-primary btn-lg">
+                        <i class="bi bi-list"></i> Zarządzanie zamówieniami
+                    </a>
+                    <a asp-action="ShowUsers" class="btn btn-primary btn-lg">
+                        <i class="bi bi-list"></i> Zarządzanie użytkownikami
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container mt-4 d-flex justify-content-center">
+        <div class="card bg-danger text-white text-center col-md-6">
+            <div class="card-body">
+                <h1>Brak Dostępu</h1>
+            </div>
+        </div>
+    </div>
+}
