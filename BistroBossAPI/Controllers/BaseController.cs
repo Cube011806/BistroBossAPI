@@ -1,23 +1,30 @@
-﻿using BistroBossAPI.Data;
+﻿using BistroBossAPI.Services; // Dodano using dla ProductService
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BistroBossAPI.Controllers
 {
     public class BaseController : Controller
-    {
-        protected readonly ApplicationDbContext _dbContext;
-        public BaseController(ApplicationDbContext dbcontext)
+    {        
+        // Wstrzykujemy Serwis
+        protected readonly ProductService _productService; 
+
+        // Konstruktor przyjmuje Serwis
+        public BaseController(ProductService productService)
         {
-            _dbContext = dbcontext;
+            _productService = productService;
         }
 
-        public override void OnActionExecuting(ActionExecutingContext context)
+        // Zmieniamy metodę, aby była asynchroniczna i używała Serwisu
+        public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var kategorie = _dbContext.Kategorie.OrderBy(k => k.Nazwa).ToList();
-            ViewData["Kategorie"] = kategorie;
+            // Pobieranie kategorii z Serwisu
+            var kategorie = await _productService.GetKategorieAsync();
+            ViewData["Kategorie"] = kategorie.OrderBy(k => k.Nazwa).ToList();
 
-            base.OnActionExecuting(context);
+            await base.OnActionExecutionAsync(context, next);
         }
     }
 }
