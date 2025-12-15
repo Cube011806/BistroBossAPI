@@ -1,0 +1,162 @@
+﻿@model Zamowienie
+@using Microsoft.AspNetCore.Html
+
+
+@{
+    ViewData["Title"] = "Szczegóły zamówienia";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["ErrorMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["SuccessMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@functions {
+    public IHtmlContent GetStars(int rating)
+    {
+        var fullStar = "&#9733;";
+        var emptyStar = "&#9734;";
+        var stars = new System.Text.StringBuilder();
+        for (int i = 1; i <= 5; i++)
+        {
+            if (i <= rating)
+                stars.Append(fullStar);
+            else
+                stars.Append(emptyStar);
+        }
+        return new HtmlString(stars.ToString());
+    }
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header">
+            <h3>Szczegóły zamówienia</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Numer zamówienia:</strong> @Model.Id</p>
+            <p><strong>Imię i nazwisko: </strong> @Model.Imie @Model.Nazwisko</p>
+            <p><strong>Adres email:</strong> @Model.Email</p>
+            <p><strong>Numer telefonu:</strong> @Model.NumerTelefonu</p>
+            <p><strong>Data zamówienia:</strong> @Model.DataZamowienia.ToString("dd-MM-yyyy HH:mm")</p>
+            <p><strong>Przewidywany czas realizacji:</strong> @Model.PrzewidywanyCzasRealizacji min</p>
+            <p><strong>Cena całkowita:</strong> @Model.CenaCalkowita.ToString("C")</p>
+            @if (Model.SposobDostawy)
+            {
+                <p><strong>Sposób dostawy:</strong> Dostawa</p>
+                <p><strong>Adres dostawy:</strong> @Model.Ulica @Model.NumerBudynku, @Model.KodPocztowy @Model.Miejscowosc</p>
+            }
+            else
+            {
+                <p><strong>Sposób dostawy:</strong> Odbiór osobisty</p>
+            }
+            <p>
+                <strong>Status:</strong>
+                @if (Model.Status == 0)
+                {
+                    <span class="text-warning fw-bold">Anulowane</span>
+                }
+                else if (Model.Status == 1)
+                {
+                    <span class="text-info fw-bold">Złożone</span>
+                }
+                else if (Model.Status == 2)
+                {
+                    <span class="text-primary fw-bold">W przygotowaniu</span>
+                }
+                else if (Model.Status == 3)
+                {
+                    if (Model.SposobDostawy)
+                    {
+                        <span class="text-success fw-bold">W dostawie</span>
+                    }
+                    else
+                    {
+                        <span class="text-success fw-bold">Gotowe do odbioru</span>
+                    }
+                }
+                else if (Model.Status == 4)
+                {
+                    <span class="text-success fw-bold">Zrealizowane</span>
+                }
+            </p>
+            @if (Model.Opinia != null)
+            {
+                <p><strong>Opinia: </strong><span class="star-display">@GetStars(Model.Opinia.Ocena)</span> - @Model.Opinia.Komentarz</p>
+            }
+            @if (Model.Status == 1)
+            {
+                <a asp-action="SetInPreparation" asp-route-id="@Model.Id" class="btn btn-success text-white">Ustaw status zamówienia jako 'W przygotowaniu'</a>
+            }
+            else if (Model.Status == 2)
+            {
+                if (Model.SposobDostawy)
+                {
+                    <a asp-action="SetInDelivery" asp-route-id="@Model.Id" class="btn btn-success text-white">Ustaw status zamówienia jako 'W dostawie'</a>
+                }
+                else
+                {
+                    <a asp-action="SetInDelivery" asp-route-id="@Model.Id" class="btn btn-success text-white">Ustaw status zamówienia jako 'Gotowe do odbioru'</a>
+                }
+            }
+            else if (Model.Status == 3)
+            {
+                <a asp-action="SetCompleted" asp-route-id="@Model.Id" class="btn btn-success text-white">Ustaw status zamówienia jako 'Zrealizowane'</a>
+            }
+            @if (Model.Status != 3 && Model.Status != 4 && Model.Status != 0)
+            {
+                <a asp-action="SetCancelled" asp-route-id="@Model.Id" class="btn btn-danger text-white">Anuluj zamówienie</a>
+            }
+        </div>
+    </div>
+
+    <h3 class="text-center text-white mt-4">Zamówione produkty</h3>
+    <div class="mb-5">
+        <table class="table table-bordered table-striped">
+            <thead class="bg-dark text-white">
+                <tr>
+                    <th>Nazwa</th>
+                    <th>Opis</th>
+                    <th>Cena</th>
+                    <th>Czas przygotowania</th>
+                    <th>Kategoria</th>
+                    <th>Zdjęcie</th>
+                    <th>Ilość</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var produkt in Model.ZamowioneProdukty)
+                {
+                    <tr>
+                        <td class="bg-secondary text-white">@produkt.Produkt.Nazwa</td>
+                        <td class="bg-secondary text-white">@produkt.Produkt.Opis</td>
+                        <td class="bg-secondary text-white">@produkt.Produkt.Cena.ToString("C")</td>
+                        <td class="bg-secondary text-white">@produkt.Produkt.CzasPrzygotowania min</td>
+                        <td class="bg-secondary text-white">@produkt.Produkt.Kategoria.Nazwa</td>
+                        <td class="bg-secondary text-white">
+                            @if (!string.IsNullOrEmpty(produkt.Produkt.Zdjecie))
+                            {
+                                <img src="@produkt.Produkt.Zdjecie" alt="Zdjęcie produktu" class="img-thumbnail" style="width: 100px;" />
+                            }
+                            else
+                            {
+                                <span>Brak zdjęcia</span>
+                            }
+                        </td>
+                        <td class="bg-secondary text-white">@produkt.Ilosc</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
