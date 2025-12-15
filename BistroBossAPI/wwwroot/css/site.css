@@ -65,3 +65,11 @@ html {
     border-bottom-right-radius: 10px;
     padding: 1rem;
 }
+
+.card .text-muted {
+    color: #f1f1f1 !important;
+}
+
+.mb-0 {
+    color: white;
+}
