@@ -1,0 +1,80 @@
+﻿@model Produkt
+@{
+    ViewData["Title"] = "BistroBoss - Edycja produktu";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["ErrorMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["SuccessMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="container py-3 mb-5 main">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header">
+                    <h3 class="mb-0">Edytuj produkt</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Product" asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="Nazwa" class="form-label">Nazwa</label>
+                                    <input type="text" class="form-control shadow-sm" asp-for="Nazwa" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="Opis" class="form-label">Opis</label>
+                                    <textarea class="form-control shadow-sm" asp-for="Opis" rows="5" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="Cena" class="form-label">Cena</label>
+                                    <input type="number" class="form-control shadow-sm" asp-for="Cena" required min="0.01" step="0.01" />
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="CzasPrzygotowania" class="form-label">Czas przygotowania</label>
+                                    <input type="number" class="form-control shadow-sm" asp-for="CzasPrzygotowania" required min="0" />
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="KategoriaId" class="form-label">Kategoria</label>
+                                    <select asp-for="KategoriaId" class="form-select shadow-sm" asp-items="ViewBag.ListaKategorii"></select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Brak kategorii produktu na liście? Dodaj ją!</label>
+                                    <input type="text" class="form-control shadow-sm" name="nowaKategoria" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Zdjęcie produktu</label>
+                                    <input type="file" class="form-control shadow-sm" name="zdjeciePlik" accept="image/*" />
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(Model.Zdjecie))
+                                {
+                                    <div class="mb-3 text-center">
+                                        <img src="@Model.Zdjecie" alt="Zdjęcie produktu" class="img-fluid rounded" style="max-height: 200px;" />
+                                        <p class="text-muted">Aktualne zdjęcie</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-success btn-lg shadow-sm">Edytuj produkt</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

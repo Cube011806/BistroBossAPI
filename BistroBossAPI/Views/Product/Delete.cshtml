@@ -1,0 +1,40 @@
+﻿@model Produkt
+@{
+    ViewData["Title"] = "BistroBoss - Usunięcie produktu";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["ErrorMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["SuccessMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="container py-3">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header">
+                    <h3 class="mb-0">Czy na pewno chcesz usunąć '@Model.Nazwa' z menu?</h3>
+                </div>
+                <div class="card-body text-center">
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="d-flex justify-content-center gap-2">
+                            <a asp-action="Index" asp-controller="Menu" class="btn btn-secondary">Anuluj</a>
+                            <button type="submit" class="btn btn-danger">Potwierdź</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
