@@ -1,0 +1,142 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model ICollection<Zamowienie>
+@inject UserManager<Uzytkownik> UserManager
+@{
+    var id = UserManager.GetUserId(User);
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["ErrorMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["SuccessMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<h1 style="text-align:center; color: white;">Wszystkie zamówienia</h1>
+
+@if (Model.Count != 0)
+{
+    <div class="search-bar">
+        <form asp-controller="Manage" asp-action="ShowAllOrders" method="get">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <input type="number" name="KwerendaWyszukujaca" placeholder="Wyszukaj zamówienie po identyfikatorze" min="1" class="form-control search-input" style="width: 28%; max-width: 450px;" />
+                <button type="submit" class="btn btn-primary search-button">Szukaj</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-container mb-5">
+        <table class="table table-bordered table-striped">
+            <thead class="bg-dark text-white">
+                <tr>
+                    <th>ID</th>
+                    <th>Wartość zamówienia</th>
+                    <th>Data zamówienia</th>
+                    <th>Status</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var zamowienie in Model.Where(z => z.Status != 0 && z.Status != 4))
+                {
+                    <tr>
+                        <td class="text-white bg-secondary">@zamowienie.Id</td>
+                        <td class="text-white bg-secondary">@zamowienie.CenaCalkowita.ToString("C")</td>
+                        <td class="text-white bg-secondary">@zamowienie.DataZamowienia.ToString("dd-MM-yyyy HH:mm")</td>
+                        <td class="text-white bg-secondary">
+                            @if (zamowienie.SposobDostawy)
+                            {
+                                if (zamowienie.Status == 1)
+                                {
+                                    <p>Złożone</p>
+                                }
+                                else if (zamowienie.Status == 2)
+                                {
+                                    <p>W realizacji</p>
+                                }
+                                else if (zamowienie.Status == 3)
+                                {
+                                    <p>Gotowe do odbioru</p>
+                                }
+                            }
+                            else
+                            {
+                                if (zamowienie.Status == 1)
+                                {
+                                    <p>Złożone</p>
+                                }
+                                else if (zamowienie.Status == 2)
+                                {
+                                    <p>W realizacji</p>
+                                }
+                                else if (zamowienie.Status == 3)
+                                {
+                                    <p>W dostawie</p>
+                                }
+                            }
+                        </td>
+                        <td class="text-white bg-secondary">
+                            <a asp-action="ShowOrder" asp-route-id="@zamowienie.Id" class="btn btn-info text-white">Zarządzaj</a>
+                            @if (User.Identity.IsAuthenticated && UserManager.FindByIdAsync(id).Result.AccessLevel == 2)
+                            {
+                                <a asp-action="DeleteOrder" asp-route-id="@zamowienie.Id" class="btn btn-danger text-white">Usuń</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#archiwalneZamowienia">
+        Pokaż zamówienia archiwalne
+    </button>
+
+    <div id="archiwalneZamowienia" class="collapse @(ViewBag.ShowArchiwalne == true ? "show" : "")">
+        <div class="table-container mb-5">
+            <table class="table table-bordered table-striped mt-3">
+                <thead class="bg-dark text-white">
+                    <tr>
+                        <th>ID</th>
+                        <th>Wartość zamówienia</th>
+                        <th>Data zamówienia</th>
+                        <th>Status</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var zamowienie in Model.Where(z => z.Status == 0 || z.Status == 4))
+                    {
+                        <tr>
+                            <td class="text-white bg-secondary">@zamowienie.Id</td>
+                            <td class="text-white bg-secondary">@zamowienie.CenaCalkowita.ToString("C")</td>
+                            <td class="text-white bg-secondary">@zamowienie.DataZamowienia.ToString("dd-MM-yyyy HH:mm")</td>
+                            <td class="text-white bg-secondary">
+                                @(zamowienie.Status == 0 ? "Anulowane" : "Zrealizowane")
+                            </td>
+                            <td class="text-white bg-secondary">
+                                <a asp-action="ShowOrder" asp-route-id="@zamowienie.Id" class="btn btn-info text-white">Zarządzaj</a>
+                                @if (User.Identity.IsAuthenticated && UserManager.FindByIdAsync(id).Result.AccessLevel == 2)
+                                {
+                                    <a asp-action="DeleteOrder" asp-route-id="@zamowienie.Id" class="btn btn-danger text-white">Usuń</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <h2>Brak zamówień</h2>
+}

@@ -24,6 +24,11 @@ html {
     color: white !important;
 }
 
+.card-header h4 {
+    color: white !important;
+    margin-bottom: 0;
+}
+
 .card {
     background-color: #444444 !important;
     color: white !important;
@@ -36,6 +41,7 @@ html {
     background-color: #444444 !important;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
+    padding: 1rem;
 }
 
 .form-label {
@@ -71,5 +77,69 @@ html {
 }
 
 .mb-0 {
+    color: white;
+}
+
+.star-display {
+    color: #ffc107;
+    font-size: 1.5rem;
+}
+
+.search-bar {
+    margin-top: 30px;
+    padding: 20px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.search-input {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-color: #007bff;
+}
+
+.search-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 25px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-light.btn-info.btn-lg {
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn {
+    margin: 0.25rem 0.25rem 0 0;
+}
+
+nav .btn {
+    margin: 0 !important;
+}
+
+.container h2 {
     color: white;
 }
