@@ -11,3 +11,57 @@ html {
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
+
+.card-header {
+    background-color: #1a237e !important;
+    color: white !important;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    text-align: center;
+}
+
+.card-header h3 {
+    color: white !important;
+}
+
+.card {
+    background-color: #444444 !important;
+    color: white !important;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+    background-color: #444444 !important;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.form-label {
+    color: black !important;
+}
+
+.card.custom-dark {
+    background-color: #444444 !important;
+    color: white;
+    border: none;
+    border-radius: 10px;
+}
+
+.card-header.custom-header {
+    background-color: #1a237e !important;
+    color: white !important;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    text-align: center;
+    padding: 1rem;
+}
+
+.card-body.custom-body {
+    background-color: #444444 !important;
+    color: white;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding: 1rem;
+}
