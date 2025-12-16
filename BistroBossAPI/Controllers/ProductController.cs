@@ -59,7 +59,7 @@ namespace BistroBossAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(ProduktCreateDto dto, string? nowaKategoria, IFormFile? zdjeciePlik)
+        public async Task<IActionResult> Add(ProduktAddDto dto, string? nowaKategoria, IFormFile? zdjeciePlik)
         {
             // Zapis do pliku
             if (zdjeciePlik != null && zdjeciePlik.Length > 0)
@@ -94,11 +94,11 @@ namespace BistroBossAPI.Controllers
                 // Próba odczytu komunikatu błędu z ciała odpowiedzi API
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                string errorMessage;
+                string ? errorMessage;
                 try
                 {
                     var errorObject = JsonDocument.Parse(responseContent).RootElement;
-                    errorMessage = errorObject.GetProperty("message").GetString() ?? $"Błąd API: {response.ReasonPhrase}";
+                    errorMessage = errorObject.GetProperty("message").GetString();
                 }
                 catch
                 {

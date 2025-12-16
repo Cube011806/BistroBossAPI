@@ -1,6 +1,6 @@
 ﻿namespace BistroBossAPI.Models.Dto
 {
-    public class ProduktCreateDto
+    public class ProduktAddDto
     {
         public string Nazwa { get; set; } = string.Empty;
         public string Opis { get; set; } = string.Empty;

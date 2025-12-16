@@ -28,7 +28,30 @@ namespace BistroBossAPI.Services
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<(bool Success, Produkt? Produkt, string ErrorMessage)> AddProductAsync(ProduktCreateDto dto, string? nowaKategoria)
+        //Pobranie produktów z menu
+        public async Task<List<KategoriaMenuDto>> GetMenuDtoAsync()
+        {
+            var kategorie = await _dbContext.Kategorie
+                .Include(k => k.Produkty)
+                .ToListAsync();
+
+            return kategorie.Select(k => new KategoriaMenuDto
+            {
+                Id = k.Id,
+                Nazwa = k.Nazwa,
+                Produkty = k.Produkty.Select(p => new ProduktMenuDto
+                {
+                    Id = p.Id,
+                    Nazwa = p.Nazwa,
+                    Cena = p.Cena,
+                    CzasPrzygotowania = p.CzasPrzygotowania,
+                    Zdjecie = p.Zdjecie
+                }).ToList()
+            }).ToList();
+        }
+
+        //Dodanie produktu
+        public async Task<(bool Success, Produkt? Produkt, string ErrorMessage)> AddProductAsync(ProduktAddDto dto, string? nowaKategoria)
         {
             // Walidacja danych
             if (string.IsNullOrWhiteSpace(dto.Nazwa) || string.IsNullOrWhiteSpace(dto.Opis))

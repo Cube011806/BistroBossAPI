@@ -19,9 +19,33 @@ namespace BistroBossAPI.Controllers.ApiControllers
             _productService = productService;
         }
 
+        // Przykład: GET /api/products/menu
+        // Zwraca listę kategorii z produktami (do widoku Menu)
+        [HttpGet("menu")]
+        public async Task<IActionResult> GetMenu()
+        {
+            var kategorie = await _productService.GetMenuDtoAsync();
+            return Ok(kategorie);
+        }
+
+        // Przykład: GET /api/products/{id}
+        // Pobiera jeden produkt
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProductById(int id)
+        {
+            var produkt = await _productService.GetProductByIdAsync(id);
+
+            if (produkt == null)
+            {
+                return NotFound(); // Zwraca 404
+            }
+
+            return Ok(produkt); // Zwraca 200 z obiektem Produkt
+        }
+
         // Przykład: POST /api/products?nowaKategoria=Napój
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] ProduktCreateDto dto, [FromQuery] string? nowaKategoria)
+        public async Task<IActionResult> Post([FromBody] ProduktAddDto dto, [FromQuery] string? nowaKategoria)
         {
             if (!ModelState.IsValid)
             {
@@ -43,20 +67,6 @@ namespace BistroBossAPI.Controllers.ApiControllers
                 // 400 Bad Request (Dane są niepoprawne).
                 return BadRequest(new { message = errorMessage });
             }
-        }
-
-        // Przykład: GET /api/products/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductById(int id)
-        {
-            var produkt = await _productService.GetProductByIdAsync(id);
-
-            if (produkt == null)
-            {
-                return NotFound(); // Zwraca 404
-            }
-
-            return Ok(produkt); // Zwraca 200 z obiektem Produkt
         }
     }
 }
