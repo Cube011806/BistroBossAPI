@@ -110,5 +110,67 @@ namespace BistroBossAPI.Controllers
                 return View(dto);
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            // Wysyłanie żądania do api
+            var response = await _httpClient.GetAsync($"http://localhost:7000/api/products/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["ErrorMessage"] = "Nie odnaleziono podanego produktu!";
+                return RedirectToAction("Index", "Menu");
+            }
+            else
+            {
+
+                var json = await response.Content.ReadAsStringAsync();
+                var produkt = JsonSerializer.Deserialize<ProduktEditDto>(json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                await UstawListeKategorii();
+                return View(produkt);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id, ProduktEditDto dto, string? nowaKategoria, IFormFile? zdjeciePlik)
+        {
+            if (zdjeciePlik != null && zdjeciePlik.Length > 0)
+            {
+                var folderPath = Path.Combine("wwwroot", "images", "produkty");
+                if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(zdjeciePlik.FileName);
+                var filePath = Path.Combine(folderPath, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await zdjeciePlik.CopyToAsync(stream);
+                }
+
+                dto.Zdjecie = "/images/produkty/" + uniqueFileName;
+            }
+
+            var json = JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PutAsync($"http://localhost:7000/api/products/{id}?nowaKategoria={nowaKategoria}",content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["SuccessMessage"] = "Produkt został pomyślnie edytowany!";
+                return RedirectToAction("Index", "Menu");
+            }
+
+            var errorJson = await response.Content.ReadAsStringAsync();
+            var error = JsonDocument.Parse(errorJson).RootElement.GetProperty("message").GetString();
+
+            TempData["ErrorMessage"] = error;
+
+            await UstawListeKategorii();
+            return View(dto);
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿@model Produkt
+﻿@using BistroBossAPI.Models.Dto
+@model ProduktEditDto
 @{
     ViewData["Title"] = "BistroBoss - Edycja produktu";
 }
@@ -28,6 +29,7 @@
                 <div class="card-body">
                     <form asp-controller="Product" asp-action="Edit" method="post" enctype="multipart/form-data">
                         <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="Zdjecie" />
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">

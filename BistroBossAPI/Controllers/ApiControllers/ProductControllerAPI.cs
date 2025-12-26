@@ -68,5 +68,17 @@ namespace BistroBossAPI.Controllers.ApiControllers
                 return BadRequest(new { message = errorMessage });
             }
         }
+
+        //Przykład: PUT /api/products/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProduktEditDto dto, [FromQuery] string? nowaKategoria)
+        {
+            var (success, produkt, errorMessage) = await _productService.UpdateProductAsync(id, dto, nowaKategoria);
+
+            if (success)
+                return Ok(produkt);
+
+            return BadRequest(new { message = errorMessage });
+        }
     }
 }
