@@ -9,12 +9,14 @@ namespace BistroBossAPI.Controllers
     public class BaseController : Controller
     {        
         // Wstrzykujemy Serwis
-        protected readonly ProductService _productService; 
+        protected readonly ProductService _productService;
+        protected readonly BasketService _basketService;
 
         // Konstruktor przyjmuje Serwis
-        public BaseController(ProductService productService)
+        public BaseController(ProductService productService, BasketService basketService)
         {
             _productService = productService;
+            _basketService = basketService;
         }
 
         // Zmieniamy metodę, aby była asynchroniczna i używała Serwisu

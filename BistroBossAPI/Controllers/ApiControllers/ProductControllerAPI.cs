@@ -45,7 +45,7 @@ namespace BistroBossAPI.Controllers.ApiControllers
 
         // Przykład: POST /api/products?nowaKategoria=Napój
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] ProduktAddDto dto, [FromQuery] string? nowaKategoria)
+        public async Task<IActionResult> AddProduct([FromBody] ProduktAddDto dto, [FromQuery] string? nowaKategoria)
         {
             if (!ModelState.IsValid)
             {
@@ -83,7 +83,7 @@ namespace BistroBossAPI.Controllers.ApiControllers
         
         //Przykład: DELETE /api/products/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteProduct(int id)
         {
             var (success, errorMessage) = await _productService.DeleteProductAsync(id);
 

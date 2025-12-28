@@ -16,14 +16,16 @@ namespace BistroBossAPI.Controllers
     public class ProductController : BaseController
     {
         private readonly UserManager<Uzytkownik> _userManager;
-        private readonly ProductService _productService;
         private readonly HttpClient _httpClient; // Klient HTTP
+        private readonly ProductService _productService;
+        
 
         public ProductController(
             ProductService productService,
+            BasketService basketService,
             UserManager<Uzytkownik> userManager,
             HttpClient httpClient) // Wstrzyknięcie klienta HTTP
-            : base(productService)
+            : base(productService, basketService)
         {
             _userManager = userManager;
             _productService = productService;

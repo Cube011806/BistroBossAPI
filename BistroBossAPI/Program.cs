@@ -16,6 +16,7 @@ builder.Services.AddDefaultIdentity<Uzytkownik>(options => options.SignIn.Requir
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<BasketService>();
 
 builder.Services.AddControllersWithViews()
     .ConfigureApiBehaviorOptions(options =>
