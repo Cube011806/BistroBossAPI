@@ -217,6 +217,27 @@ namespace BistroBossAPI.Controllers
             TempData["ErrorMessage"] = error;
             return RedirectToAction("Index", "Menu");
         }
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var response = await _httpClient.GetAsync($"http://localhost:7000/api/products/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["ErrorMessage"] = "Nie odnaleziono podanego produktu!";
+                return RedirectToAction("Index", "Menu");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var produkt = JsonSerializer.Deserialize<ProduktDto>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            var nazwaKategorii = (await _productService.GetKategorieAsync()).FirstOrDefault(k => k.Id == produkt.KategoriaId)?.Nazwa;
+
+            ViewBag.KategoriaNazwa = nazwaKategorii;
+
+            return View(produkt);
+        }
 
     }
 }

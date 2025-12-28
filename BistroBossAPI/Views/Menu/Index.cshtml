@@ -154,7 +154,7 @@ else
                         </div>
 
                         <div class="btn-group">
-                            <a asp-action="Details" asp-route-id="@produkt.Id" class="btn btn-primary btn-sm">Szczegóły produktu</a>
+                            <a asp-controller="Product" asp-action="Details" asp-route-id="@produkt.Id" class="btn btn-primary btn-sm">Szczegóły produktu</a>
                             @if (!User.Identity.IsAuthenticated || (User.Identity.IsAuthenticated && UserManager.FindByIdAsync(id).Result.AccessLevel == 0))
                             {
                                 <a asp-action="AddToBasket" asp-controller="Basket" asp-route-produktId="@produkt.Id" class="btn btn-primary btn-sm">Dodaj do koszyka</a>
