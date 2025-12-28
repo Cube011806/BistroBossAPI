@@ -36,5 +36,18 @@ namespace BistroBossAPI.Controllers.ApiControllers
             return Ok(new { message = "Dodano do koszyka" });
         }
 
+        //Przykład: DELETE /api/baskets/{userId}/products/{koszykProduktId}
+        [HttpDelete("{userId}/products/{koszykProduktId}")]
+        public async Task<IActionResult> RemoveFromBasket(string userId, int koszykProduktId)
+        {
+            var result = await _basketService.RemoveFromBasketAsync(userId, koszykProduktId);
+
+            if (!result.Success)
+                return BadRequest(new { message = result.ErrorMessage });
+
+            return Ok(new { message = result.Message });
+        }
+
+
     }
 }

@@ -46,4 +46,35 @@ public class BasketController : BaseController
 
         return View("IndexLoggedIn", basket);
     }
+
+    [HttpPost]
+    public async Task<IActionResult> RemoveFromBasket(int id)
+    {
+        if (!User.Identity.IsAuthenticated)
+        {
+            TempData["ErrorMessage"] = "Musisz być zalogowany, aby modyfikować koszyk.";
+            return RedirectToAction("Index");
+        }
+
+        var userId = _userManager.GetUserId(User);
+
+        var response = await _httpClient.DeleteAsync(
+            $"http://localhost:7000/api/baskets/{userId}/products/{id}"
+        );
+
+        if (response.IsSuccessStatusCode)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            var doc = JsonDocument.Parse(json);
+            var message = doc.RootElement.GetProperty("message").GetString();
+
+            TempData["SuccessMessage"] = message;
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Nie udało się usunąć produktu z koszyka.";
+        }
+
+        return RedirectToAction("Index");
+    }
 }

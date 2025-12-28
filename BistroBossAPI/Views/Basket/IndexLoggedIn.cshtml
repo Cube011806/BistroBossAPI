@@ -123,8 +123,9 @@
                                         <td class="text-white bg-secondary">@item.Cena.ToString("c")</td>
                                         <td class="text-white bg-secondary">@(item.Cena * item.Ilosc) zł</td>
                                         <td class="text-white bg-secondary">
-                                            <form asp-action="RemoveFromBasket" asp-route-id="@item.Id" method="post">
-                                                <button class="btn btn-danger btn-sm">Usuń produkt</button>
+                                            <form asp-action="RemoveFromBasket" method="post">
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <button type="submit" class="btn btn-danger btn-sm">Usuń</button>
                                             </form>
                                         </td>
                                     </tr>
