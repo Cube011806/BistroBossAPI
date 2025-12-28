@@ -80,5 +80,18 @@ namespace BistroBossAPI.Controllers.ApiControllers
 
             return BadRequest(new { message = errorMessage });
         }
+        
+        //Przykład: DELETE /api/products/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var (success, errorMessage) = await _productService.DeleteProductAsync(id);
+
+            if (success)
+                return Ok(new { message = "Produkt usunięty" });
+
+            return BadRequest(new { message = errorMessage });
+        }
+
     }
 }

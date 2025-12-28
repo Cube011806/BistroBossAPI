@@ -172,5 +172,51 @@ namespace BistroBossAPI.Controllers
             await UstawListeKategorii();
             return View(dto);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var response = await _httpClient.GetAsync($"http://localhost:7000/api/products/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["ErrorMessage"] = "Nie odnaleziono podanego produktu!";
+                return RedirectToAction("Index", "Menu");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var produkt = JsonSerializer.Deserialize<ProduktDto>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return View(produkt);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var response = await _httpClient.DeleteAsync($"http://localhost:7000/api/products/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["SuccessMessage"] = "Produkt został pomyślnie usunięty!";
+                return RedirectToAction("Index", "Menu");
+            }
+
+            var errorJson = await response.Content.ReadAsStringAsync();
+            string error;
+
+            try
+            {
+                error = JsonDocument.Parse(errorJson).RootElement.GetProperty("message").GetString();
+            }
+            catch
+            {
+                error = "Nieznany błąd po stronie API.";
+            }
+
+            TempData["ErrorMessage"] = error;
+            return RedirectToAction("Index", "Menu");
+        }
+
     }
 }

@@ -189,5 +189,34 @@ namespace BistroBossAPI.Services
 
             return (true, produktDto, string.Empty);
         }
+
+        //Usunięcie produktu
+        public async Task<(bool Success, string ErrorMessage)> DeleteProductAsync(int id)
+        {
+            var produkt = await _dbContext.Produkty.FirstOrDefaultAsync(p => p.Id == id);
+
+            if (produkt == null)
+                return (false, "Nie znaleziono produktu!");
+
+            int kategoriaId = produkt.KategoriaId;
+
+            _dbContext.Produkty.Remove(produkt);
+            await _dbContext.SaveChangesAsync();
+
+            // Sprawdzenie czy kategoria jest pusta
+            bool czyPusta = !await _dbContext.Produkty.AnyAsync(p => p.KategoriaId == kategoriaId);
+
+            if (czyPusta)
+            {
+                var kategoria = await _dbContext.Kategorie.FirstOrDefaultAsync(k => k.Id == kategoriaId);
+                if (kategoria != null)
+                {
+                    _dbContext.Kategorie.Remove(kategoria);
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
+            return (true, "");
+        }
+
     }
 }
