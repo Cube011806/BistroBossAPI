@@ -142,5 +142,33 @@ namespace BistroBossAPI.Services
 
             return (true, dto, "");
         }
+
+        public async Task<List<ZamowienieDto>> GetOrdersForUserAsync(string userId)
+        {
+            var zamowienia = await _dbContext.Zamowienia
+                .Where(z => z.UzytkownikId == userId)
+                .OrderByDescending(z => z.Id)
+                .ToListAsync();
+
+            return zamowienia.Select(z => new ZamowienieDto
+            {
+                Id = z.Id,
+                DataZamowienia = z.DataZamowienia,
+                CenaCalkowita = z.CenaCalkowita,
+                PrzewidywanyCzasRealizacji = z.PrzewidywanyCzasRealizacji,
+                SposobDostawy = z.SposobDostawy,
+
+                Imie = z.Imie,
+                Nazwisko = z.Nazwisko,
+                Email = z.Email,
+                NumerTelefonu = z.NumerTelefonu,
+
+                Miejscowosc = z.Miejscowosc,
+                Ulica = z.Ulica,
+                NumerBudynku = z.NumerBudynku,
+                KodPocztowy = z.KodPocztowy
+
+            }).ToList();
+        }
     }
 }

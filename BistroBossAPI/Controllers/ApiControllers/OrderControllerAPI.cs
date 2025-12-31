@@ -38,5 +38,14 @@ namespace BistroBossAPI.Controllers.ApiControllers
 
             return Ok(result.Zamowienie);
         }
+
+        // Przykład: GET /api/orders/user/abc123
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetOrdersForUser(string userId)
+        {
+            var orders = await _orderService.GetOrdersForUserAsync(userId);
+            return Ok(orders);
+        }
+
     }
 }

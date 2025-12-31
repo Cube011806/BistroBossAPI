@@ -43,5 +43,24 @@ namespace BistroBossAPI.Controllers
 
             return View(order);
         }
+        public async Task<IActionResult> ShowMyOrders()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var response = await _httpClient.GetAsync($"http://localhost:7000/api/orders/user/{userId}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["ErrorMessage"] = "Nie udało się pobrać zamówień.";
+                return RedirectToAction("Index", "Menu");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var zamowienia = JsonSerializer.Deserialize<List<ZamowienieDto>>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return View(zamowienia);
+        }
     }
 }
