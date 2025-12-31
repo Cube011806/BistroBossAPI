@@ -1,6 +1,9 @@
-﻿using BistroBossAPI.Services;
+﻿using BistroBossAPI.Models;
+using BistroBossAPI.Models.Dto;
+using BistroBossAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BistroBossAPI.Controllers.ApiControllers
 {
@@ -33,7 +36,7 @@ namespace BistroBossAPI.Controllers.ApiControllers
             if (!result.Success)
                 return BadRequest(new { message = result.ErrorMessage });
 
-            return Ok(new { message = "Dodano do koszyka" });
+            return Ok(new { message = "Dodano produkt do koszyka!" });
         }
 
         //Przykład: DELETE /api/baskets/{userId}/products/{koszykProduktId}
@@ -48,6 +51,16 @@ namespace BistroBossAPI.Controllers.ApiControllers
             return Ok(new { message = result.Message });
         }
 
+        //Przykład: POST /api/baskets/guest
+        [HttpPost("guest")]
+        public async Task<IActionResult> SetGuestBasket([FromBody] KoszykGuestDto dto)
+        {
+            var success = await _basketService.SetGuestBasketAsync(dto);
 
+            if (!success)
+                return BadRequest(new { message = "Nie udało się zapisać koszyka gościa." });
+
+            return Ok();
+        }
     }
 }

@@ -14,8 +14,10 @@ namespace BistroBossAPI.Controllers
         public ManageController(
             ProductService productService,
             BasketService basketService,
+            CheckoutService checkoutService,
+            OrderService orderService,
             UserManager<Uzytkownik> userManager)
-            : base(productService, basketService)
+            : base(productService, basketService, checkoutService, orderService)
         {
             _userManager = userManager;
         }

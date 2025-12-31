@@ -1,14 +1,17 @@
 using System.Diagnostics;
 using BistroBossAPI.Models;
+using BistroBossAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BistroBossAPI.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ProductService productService, 
+            BasketService basketService, CheckoutService checkoutService, OrderService orderService) 
+            : base(productService, basketService, checkoutService, orderService)
         {
             _logger = logger;
         }

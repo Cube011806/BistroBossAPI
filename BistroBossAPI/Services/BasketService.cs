@@ -104,5 +104,43 @@ namespace BistroBossAPI.Services
                 return (true, "Usunięto produkt z koszyka!", "");
             }
         }
+        public async Task<bool> SetGuestBasketAsync(KoszykGuestDto dto)
+        {
+            // usuń stary koszyk gościa
+            var old = await _dbContext.Koszyki
+                .Include(k => k.KoszykProdukty)
+                .Where(k => k.UzytkownikId == "GUEST")
+                .FirstOrDefaultAsync();
+
+            if (old != null)
+            {
+                _dbContext.KoszykProdukty.RemoveRange(old.KoszykProdukty);
+                _dbContext.Koszyki.Remove(old);
+                await _dbContext.SaveChangesAsync();
+            }
+
+            // utwórz nowy koszyk
+            var koszyk = new Koszyk
+            {
+                UzytkownikId = "GUEST"
+            };
+
+            _dbContext.Koszyki.Add(koszyk);
+            await _dbContext.SaveChangesAsync();
+
+            foreach (var p in dto.KoszykProdukty)
+            {
+                _dbContext.KoszykProdukty.Add(new KoszykProdukt
+                {
+                    KoszykId = koszyk.Id,
+                    ProduktId = p.ProduktId,
+                    Ilosc = p.Ilosc
+                });
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

@@ -1,0 +1,169 @@
+﻿@using BistroBossAPI.Models.Dto
+@model ZamowienieAddDto
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["ErrorMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["SuccessMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<style>
+    .card-header {
+        background-color: #1a237e !important;
+        color: white !important;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        text-align: center;
+    }
+
+        .card-header h3 {
+            color: white !important;
+        }
+
+    .card {
+        background-color: #444444 !important;
+        border: none;
+        border-radius: 10px;
+        color: white;
+    }
+
+    .card-body {
+        background-color: #444444 !important;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+
+    .form-label {
+        color: #f1f1f1;
+        font-weight: 600;
+    }
+
+    input.form-control,
+    select.form-select,
+    textarea.form-control {
+        background-color: white;
+        color: #212529;
+        border: 1px solid #ccc;
+        box-shadow: 0 .1rem .3rem rgba(0,0,0,.1);
+    }
+
+    .text-danger {
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+        display: block;
+    }
+</style>
+
+<div class="container py-3 mb-5 main">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header">
+                    <h3 class="mb-0">Złóż zamówienie</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="SubmitOrder" method="post" class="row g-3">
+
+                        <!-- Delivery Method -->
+                        <div class="col-12 mb-3">
+                            <label class="form-label mb-2">Metoda dostawy</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="SposobDostawy" value="true" id="radioDelivery" checked />
+                                <label class="form-check-label" for="radioDelivery">Dostawa</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="SposobDostawy" value="false" id="radioPickup" />
+                                <label class="form-check-label" for="radioPickup">Odbiór osobisty</label>
+                            </div>
+                        </div>
+
+                        <!-- User Info -->
+                        <div id="userFields">
+                            <div class="col-12 mb-3">
+                                <label class="form-label mb-2">Imię</label>
+                                <input asp-for="Imie" class="form-control shadow-sm" />
+                                <span asp-validation-for="Imie" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label mb-2">Nazwisko</label>
+                                <input asp-for="Nazwisko" class="form-control shadow-sm" />
+                                <span asp-validation-for="Nazwisko" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label mb-2">Email</label>
+                                <input asp-for="Email" type="email" class="form-control shadow-sm" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label mb-2">Numer telefonu</label>
+                                <input asp-for="NumerTelefonu" type="tel" class="form-control shadow-sm" />
+                                <span asp-validation-for="NumerTelefonu" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Only Fields -->
+                        <div id="deliveryFields">
+                            <div class="col-12 mb-3">
+                                <label class="form-label mb-2">Miejscowość</label>
+                                <input asp-for="Miejscowosc" class="form-control shadow-sm" />
+                                <span asp-validation-for="Miejscowosc" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label mb-2">Ulica</label>
+                                <input asp-for="Ulica" class="form-control shadow-sm" />
+                                <span asp-validation-for="Ulica" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label mb-2">Numer budynku</label>
+                                <input asp-for="NumerBudynku" class="form-control shadow-sm" />
+                                <span asp-validation-for="NumerBudynku" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label mb-2">Kod pocztowy</label>
+                                <input asp-for="KodPocztowy" class="form-control shadow-sm" />
+                                <span asp-validation-for="KodPocztowy" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="col-12 mt-3">
+                            <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm">Zamów (płatność gotówką)</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_ValidationScriptsPartial" />
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deliveryRadio = document.getElementById('radioDelivery');
+        const pickupRadio = document.getElementById('radioPickup');
+        const deliveryFields = document.getElementById('deliveryFields');
+
+        function toggleDeliveryFields() {
+            if (pickupRadio.checked) {
+                deliveryFields.style.display = 'none';
+                deliveryFields.querySelectorAll('input').forEach(input => input.value = '');
+            } else {
+                deliveryFields.style.display = 'block';
+            }
+        }
+
+        deliveryRadio.addEventListener('change', toggleDeliveryFields);
+        pickupRadio.addEventListener('change', toggleDeliveryFields);
+        toggleDeliveryFields();
+    });
+</script>

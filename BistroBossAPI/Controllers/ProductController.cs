@@ -23,9 +23,11 @@ namespace BistroBossAPI.Controllers
         public ProductController(
             ProductService productService,
             BasketService basketService,
+            CheckoutService checkoutService,
+            OrderService orderService,
             UserManager<Uzytkownik> userManager,
             HttpClient httpClient) // Wstrzyknięcie klienta HTTP
-            : base(productService, basketService)
+            : base(productService, basketService, checkoutService, orderService)
         {
             _userManager = userManager;
             _productService = productService;

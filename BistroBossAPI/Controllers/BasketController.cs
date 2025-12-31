@@ -14,9 +14,11 @@ public class BasketController : BaseController
     public BasketController(
         ProductService productService,
         BasketService basketService,
+        CheckoutService checkoutService,
+        OrderService orderService,
         UserManager<Uzytkownik> userManager,
         HttpClient httpClient)
-        : base(productService, basketService)
+        : base(productService, basketService, checkoutService, orderService)
     {
         _userManager = userManager;
         _httpClient = httpClient;
@@ -24,13 +26,18 @@ public class BasketController : BaseController
 
     public async Task<IActionResult> Index()
     {
-        var userId = _userManager.GetUserId(User);
-
-        if (userId == null)
+        if (!User.Identity.IsAuthenticated)
         {
-            TempData["ErrorMessage"] = "Musisz być zalogowany, aby zobaczyć koszyk.";
-            return RedirectToAction("Index", "Menu");
+            var json = HttpContext.Session.GetString("basket");
+
+            KoszykGuestDto basket = json == null
+                ? new KoszykGuestDto()
+                : JsonSerializer.Deserialize<KoszykGuestDto>(json);
+
+            return View("IndexGuest", basket);
         }
+
+        var userId = _userManager.GetUserId(User);
 
         var response = await _httpClient.GetAsync($"http://localhost:7000/api/baskets/{userId}");
 
@@ -40,22 +47,64 @@ public class BasketController : BaseController
             return RedirectToAction("Index", "Menu");
         }
 
-        var json = await response.Content.ReadAsStringAsync();
-        var basket = JsonSerializer.Deserialize<KoszykDto>(json,
+        var jsonLogged = await response.Content.ReadAsStringAsync();
+        var basketLogged = JsonSerializer.Deserialize<KoszykDto>(jsonLogged,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-        return View("IndexLoggedIn", basket);
+        return View("IndexLoggedIn", basketLogged);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddToBasket(int produktId)
+    {
+        if (!User.Identity.IsAuthenticated)
+        {
+            var json = HttpContext.Session.GetString("basket");
+
+            KoszykGuestDto basket = json == null
+                ? new KoszykGuestDto()
+                : JsonSerializer.Deserialize<KoszykGuestDto>(json);
+
+            var produkt = await _productService.GetProductByIdAsync(produktId);
+
+            var existing = basket.KoszykProdukty.FirstOrDefault(p => p.ProduktId == produktId);
+
+            if (existing == null)
+            {
+                basket.KoszykProdukty.Add(new KoszykGuestProduktDto
+                {
+                    ProduktId = produktId,
+                    Ilosc = 1,
+                    Produkt = produkt
+                });
+            }
+            else
+            {
+                existing.Ilosc++;
+            }
+
+            HttpContext.Session.SetString("basket", JsonSerializer.Serialize(basket));
+
+            TempData["SuccessMessage"] = "Produkt został dodany do koszyka!";
+            return RedirectToAction("Index", "Menu");
+        }
+
+        var userId = _userManager.GetUserId(User);
+
+        var response = await _httpClient.PostAsync(
+            $"http://localhost:7000/api/baskets?userId={userId}&produktId={produktId}",
+            null
+        );
+
+        if (!response.IsSuccessStatusCode)
+            TempData["ErrorMessage"] = "Nie udało się dodać produktu do koszyka!";
+
+        return RedirectToAction("Index", "Menu");
     }
 
     [HttpPost]
     public async Task<IActionResult> RemoveFromBasket(int id)
     {
-        if (!User.Identity.IsAuthenticated)
-        {
-            TempData["ErrorMessage"] = "Musisz być zalogowany, aby modyfikować koszyk.";
-            return RedirectToAction("Index");
-        }
-
         var userId = _userManager.GetUserId(User);
 
         var response = await _httpClient.DeleteAsync(
@@ -65,15 +114,48 @@ public class BasketController : BaseController
         if (response.IsSuccessStatusCode)
         {
             var json = await response.Content.ReadAsStringAsync();
-            var doc = JsonDocument.Parse(json);
-            var message = doc.RootElement.GetProperty("message").GetString();
+            using var doc = JsonDocument.Parse(json);
+
+            string message = doc.RootElement.GetProperty("message").GetString();
 
             TempData["SuccessMessage"] = message;
         }
         else
         {
-            TempData["ErrorMessage"] = "Nie udało się usunąć produktu z koszyka.";
+            TempData["ErrorMessage"] = "Nie udało się usunąć produktu z koszyka!";
         }
+
+        return RedirectToAction("Index");
+    }
+
+
+    [HttpPost]
+    public IActionResult RemoveFromBasketGuest(int produktId)
+    {
+        var json = HttpContext.Session.GetString("basket");
+
+        if (json == null)
+            return RedirectToAction("Index");
+
+        var basket = JsonSerializer.Deserialize<KoszykGuestDto>(json);
+
+        var item = basket.KoszykProdukty.FirstOrDefault(p => p.ProduktId == produktId);
+
+        if (item != null)
+        {
+            if (item.Ilosc > 1)
+            {
+                item.Ilosc--;
+                TempData["SuccessMessage"] = "Usunięto sztukę produktu z koszyka!";
+            }
+            else
+            {
+                basket.KoszykProdukty.Remove(item);
+                TempData["SuccessMessage"] = "Usunięto produkt z koszyka!";
+            }
+        }
+
+        HttpContext.Session.SetString("basket", JsonSerializer.Serialize(basket));
 
         return RedirectToAction("Index");
     }
