@@ -85,8 +85,7 @@ namespace BistroBossAPI.Services
             return (true, dtoOut, "");
         }
 
-        public async Task<(bool Success, ZamowienieDetailsDto? Zamowienie, string ErrorMessage)>
-            GetOrderAsync(int id)
+        public async Task<(bool Success, ZamowienieDetailsDto? Zamowienie, string ErrorMessage)>GetOrderAsync(int id)
         {
             var zamowienie = await _dbContext.Zamowienia
                 .Include(z => z.ZamowioneProdukty)
@@ -157,6 +156,7 @@ namespace BistroBossAPI.Services
                 CenaCalkowita = z.CenaCalkowita,
                 PrzewidywanyCzasRealizacji = z.PrzewidywanyCzasRealizacji,
                 SposobDostawy = z.SposobDostawy,
+                Status = z.Status,
 
                 Imie = z.Imie,
                 Nazwisko = z.Nazwisko,
@@ -170,5 +170,33 @@ namespace BistroBossAPI.Services
 
             }).ToList();
         }
+
+        public async Task<List<ZamowienieDto>> GetAllOrdersAsync()
+        {
+            var zamowienia = await _dbContext.Zamowienia
+                .OrderBy(z => z.Status)
+                .ToListAsync();
+
+            return zamowienia.Select(z => new ZamowienieDto
+            {
+                Id = z.Id,
+                DataZamowienia = z.DataZamowienia,
+                CenaCalkowita = z.CenaCalkowita,
+                PrzewidywanyCzasRealizacji = z.PrzewidywanyCzasRealizacji,
+                SposobDostawy = z.SposobDostawy,
+                Status = z.Status,
+
+                Imie = z.Imie,
+                Nazwisko = z.Nazwisko,
+                Email = z.Email,
+                NumerTelefonu = z.NumerTelefonu,
+
+                Miejscowosc = z.Miejscowosc,
+                Ulica = z.Ulica,
+                NumerBudynku = z.NumerBudynku,
+                KodPocztowy = z.KodPocztowy
+            }).ToList();
+        }
+
     }
 }

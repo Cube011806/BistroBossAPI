@@ -7,6 +7,7 @@
         public float CenaCalkowita { get; set; }
         public int PrzewidywanyCzasRealizacji { get; set; }
         public bool SposobDostawy { get; set; }
+        public int Status { get; set; }
 
         public string Imie { get; set; }
         public string Nazwisko { get; set; }
@@ -17,6 +18,7 @@
         public string Ulica { get; set; }
         public string NumerBudynku { get; set; }
         public string KodPocztowy { get; set; }
+
     }
 
 }

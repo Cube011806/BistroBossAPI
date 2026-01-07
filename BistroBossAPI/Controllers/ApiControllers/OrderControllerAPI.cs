@@ -47,5 +47,24 @@ namespace BistroBossAPI.Controllers.ApiControllers
             return Ok(orders);
         }
 
+        // Przykład: GET /api/orders/all
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllOrders()
+        {
+            var orders = await _orderService.GetAllOrdersAsync();
+            return Ok(orders);
+        }
+
+        // Przykład: GET /api/orders/search/15
+        [HttpGet("search/{id}")]
+        public async Task<IActionResult> SearchOrder(int id)
+        {
+            var result = await _orderService.GetOrderAsync(id);
+
+            if (!result.Success || result.Zamowienie == null)
+                return NotFound(new { message = result.ErrorMessage });
+
+            return Ok(result.Zamowienie);
+        }
     }
 }
