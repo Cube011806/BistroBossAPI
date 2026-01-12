@@ -1,0 +1,68 @@
+﻿@model BistroBossAPI.Models.Produkt
+
+@{
+    ViewData["Title"] = "Szczegóły produktu";
+}
+
+<style>
+    .card img.img-thumbnail {
+        background-color: transparent;
+        border: 1px solid #666;
+    }
+
+    .card .text-muted {
+        color: #f1f1f1 !important;
+    }
+</style>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["ErrorMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["SuccessMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div>
+    <div class="card mb-2 shadow">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-3"></div>
+                <div class="col-md-3 text-center">
+                    @if (!string.IsNullOrEmpty(Model.Zdjecie))
+                    {
+                        <img src="@Model.Zdjecie" alt="Zdjęcie produktu @Model.Nazwa" class="img-fluid rounded" style="max-height: 250px;" />
+                    }
+                    else
+                    {
+                        <p class="text-muted">Brak zdjęcia produktu.</p>
+                    }
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-4">
+                    <h3 class="card-title fw-bold">@Model.Nazwa</h3>
+                    <p class="card-text"><strong>Cena:</strong> @Model.Cena.ToString("C")</p>
+                    <p class="card-text"><strong>Przewidywany czas przygotowania:</strong> @Model.CzasPrzygotowania minut</p>
+                    <p class="card-text"><strong>Kategoria:</strong> @Model.Kategoria?.Nazwa</p>
+                </div>
+                <div class="col-md-1"></div>
+            </div>
+
+            <hr style="border-color: #ffc107; border-width: 1.5px; margin-top: 1.5rem; margin-bottom: 1.5rem;" />
+
+            <div class="row">
+                <div class="col-12">
+                    <p class="card-text">@Model.Opis</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

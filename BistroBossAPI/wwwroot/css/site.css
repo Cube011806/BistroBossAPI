@@ -37,6 +37,15 @@ html {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+.card-title {
+    color: #ffffff; /* Changed from yellow to white */
+}
+
+.card:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
 .card-body {
     background-color: #444444 !important;
     border-bottom-left-radius: 10px;
