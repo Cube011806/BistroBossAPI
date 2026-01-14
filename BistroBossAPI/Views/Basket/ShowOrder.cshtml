@@ -1,0 +1,289 @@
+﻿@model Zamowienie
+@using Microsoft.AspNetCore.Html
+
+@{
+    ViewData["Title"] = "Szczegóły zamówienia";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["ErrorMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["SuccessMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<style>
+    div.card {
+        background-color: #444444 !important;
+        border: none;
+        border-radius: 10px;
+        color: white;
+    }
+
+    div.card-header {
+        background-color: #1a237e !important;
+        color: white !important;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    div.card-header h3 {
+        color: white !important;
+        margin: 0;
+    }
+
+    div.card-body {
+        background-color: #444444 !important;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        padding: 1rem;
+    }
+
+    table.table tbody tr td {
+        background-color: #6c757d !important;
+        color: white !important;
+    }
+
+    table.table tbody tr td img.img-thumbnail {
+        background-color: transparent;
+    }
+
+    .star-display {
+        color: #ffc107;
+        font-size: 1.5rem;
+    }
+</style>
+
+@functions {
+    public IHtmlContent GetStars(int rating)
+    {
+        var fullStar = "&#9733;";
+        var emptyStar = "&#9734;";
+        var stars = new System.Text.StringBuilder();
+        for (int i = 1; i <= 5; i++)
+        {
+            if (i <= rating)
+                stars.Append(fullStar);
+            else
+                stars.Append(emptyStar);
+        }
+        return new HtmlString(stars.ToString());
+    }
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header">
+            <h3>Szczegóły zamówienia</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Numer zamówienia:</strong> @Model.Id</p>
+            <p><strong>Imię i nazwisko: </strong> @Model.Imie @Model.Nazwisko</p>
+            <p><strong>Adres email:</strong> @Model.Email</p>
+            <p><strong>Numer telefonu:</strong> @Model.NumerTelefonu</p>
+            <p><strong>Data zamówienia:</strong> @Model.DataZamowienia.ToString("dd-MM-yyyy HH:mm")</p>
+            <p><strong>Przewidywany czas realizacji:</strong> @Model.PrzewidywanyCzasRealizacji min</p>
+            <p><strong>Cena całkowita:</strong> @Model.CenaCalkowita.ToString("C")</p>
+            @if (Model.SposobDostawy)
+            {
+                <p><strong>Sposób dostawy:</strong> Dostawa</p>
+                <p><strong>Adres dostawy:</strong> @Model.Ulica @Model.NumerBudynku, @Model.KodPocztowy @Model.Miejscowosc</p>
+            }
+            else
+            {
+                <p><strong>Sposób dostawy:</strong> Odbiór osobisty</p>
+            }
+            <p>
+                <strong>Status:</strong>
+                @if (Model.Status == 0)
+                {
+                    <span class="text-warning fw-bold">Anulowane</span>
+                }
+                else if (Model.Status == 1)
+                {
+                    <span class="text-info fw-bold">Złożone</span>
+                }
+                else if (Model.Status == 2)
+                {
+                    <span class="text-primary fw-bold">W przygotowaniu</span>
+                }
+                else if (Model.Status == 3)
+                {
+                    if (Model.SposobDostawy)
+                    {
+                        <span class="text-success fw-bold">W dostawie</span>
+                    }
+                    else
+                    {
+                        <span class="text-success fw-bold">Gotowe do odbioru</span>
+                    }
+                }
+                else if (Model.Status == 4)
+                {
+                    <span class="text-success fw-bold">Zrealizowane</span>
+                }
+            </p>
+            @if (Model.Opinia != null)
+            {
+                <p><strong>Opinia: </strong><span class="star-display">@GetStars(Model.Opinia.Ocena)</span> - @Model.Opinia.Komentarz</p>
+            }
+            @if (Model.Status == 1)
+            {
+                <a asp-action="CancelOrder" asp-route-id="@Model.Id" class="btn btn-danger text-white">Anuluj zamówienie</a>
+            }
+            else if (Model.Status == 4 && Model.Opinia == null && ViewBag.IsGuest == "0")
+            {
+                <a asp-action="AddReview" asp-route-ZamowienieId="@Model.Id" class="btn btn-success text-white">Oceń zamówienie</a>
+            }
+            @if ((Model.Status == 4 || Model.Status == 0) && ViewBag.IsGuest == "0")
+            {
+                <button class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#deliveryModal">Zamów ponownie</button>
+            }
+        </div>
+    </div>
+
+    <h3 class="text-center text-white mt-4">Zamówione produkty</h3>
+    <div class="mb-5">
+        <table class="table table-bordered table-striped">
+            <thead class="bg-dark text-white">
+                <tr>
+                    <th>Nazwa</th>
+                    <th>Opis</th>
+                    <th>Cena</th>
+                    <th>Czas przygotowania</th>
+                    <th>Kategoria</th>
+                    <th>Zdjęcie</th>
+                    <th>Ilość</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var produkt in Model.ZamowioneProdukty)
+                {
+                    <tr>
+                        <td>@produkt.Produkt.Nazwa</td>
+                        <td>@produkt.Produkt.Opis</td>
+                        <td>@produkt.Produkt.Cena.ToString("C")</td>
+                        <td>@produkt.Produkt.CzasPrzygotowania min</td>
+                        <td>@produkt.Produkt.Kategoria.Nazwa</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(produkt.Produkt.Zdjecie))
+                            {
+                                <img src="@produkt.Produkt.Zdjecie" alt="Zdjęcie produktu" class="img-thumbnail" style="width: 100px;" />
+                            }
+                            else
+                            {
+                                <span class="text-white">Brak zdjęcia</span>
+                            }
+                        </td>
+                        <td>@produkt.Ilosc</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Single modal for choosing delivery method and entering address if needed -->
+<div class="modal fade" id="deliveryModal" tabindex="-1" aria-labelledby="deliveryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deliveryModalLabel">Wybierz sposób dostawy</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+            </div>
+            <form id="deliveryForm" method="post" asp-action="ReOrder">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" id="sposobDostawy" name="sposobDostawy" value="" />
+                <div class="modal-body text-center">
+                    <p>Jak chcesz otrzymać zamówienie?</p>
+
+                    <div class="col-12 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="deliveryMethod" value="true" id="radioDelivery" checked />
+                            <label class="form-check-label" for="radioDelivery">Dostawa</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="deliveryMethod" value="false" id="radioPickup" />
+                            <label class="form-check-label" for="radioPickup">Odbiór osobisty</label>
+                        </div>
+                    </div>
+
+                    <div id="deliveryFields" style="display:none; text-align:left;">
+                        <div class="mb-3">
+                            <label class="form-label mb-2" for="Miejscowosc">Miejscowość</label>
+                            <input asp-for="Miejscowosc" id="Miejscowosc" name="Miejscowosc" class="form-control shadow-sm" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label mb-2" for="Ulica">Ulica</label>
+                            <input asp-for="Ulica" id="Ulica" name="Ulica" class="form-control shadow-sm" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label mb-2" for="NumerBudynku">Numer budynku</label>
+                            <input asp-for="NumerBudynku" id="NumerBudynku" name="NumerBudynku" class="form-control shadow-sm" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label mb-2" for="KodPocztowy">Kod pocztowy</label>
+                            <input asp-for="KodPocztowy" id="KodPocztowy" name="KodPocztowy" class="form-control shadow-sm" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="submitBtn" class="btn btn-success" disabled>Potwierdź</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Bundle JS (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const deliveryFields = document.getElementById('deliveryFields');
+    const sposobDostawyInput = document.getElementById('sposobDostawy');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function updateDeliveryMethod() {
+        const deliveryRadio = document.getElementById('radioDelivery');
+        const isDelivery = deliveryRadio.checked;
+
+        sposobDostawyInput.value = isDelivery.toString();
+
+        if (isDelivery) {
+            deliveryFields.style.display = 'block';
+            document.getElementById('Miejscowosc').required = true;
+            document.getElementById('Ulica').required = true;
+            document.getElementById('NumerBudynku').required = true;
+            document.getElementById('KodPocztowy').required = true;
+        } else {
+            deliveryFields.style.display = 'none';
+            document.getElementById('Miejscowosc').required = false;
+            document.getElementById('Ulica').required = false;
+            document.getElementById('NumerBudynku').required = false;
+            document.getElementById('KodPocztowy').required = false;
+        }
+
+        submitBtn.disabled = false;
+    }
+
+    // Initialize on modal open
+    var deliveryModal = document.getElementById('deliveryModal');
+    deliveryModal.addEventListener('show.bs.modal', function () {
+        updateDeliveryMethod();
+    });
+
+    // Listen to changes on both radios
+    document.getElementById('radioDelivery').addEventListener('change', updateDeliveryMethod);
+    document.getElementById('radioPickup').addEventListener('change', updateDeliveryMethod);
+</script>

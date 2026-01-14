@@ -1,0 +1,51 @@
+﻿@model ICollection<Zamowienie>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["ErrorMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["SuccessMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<h1 style="text-align:center; color: white;">Moje zamówienia</h1>
+
+@if (Model.Count != 0)
+{
+    <div class="table-container mb-5">
+        <table class="table table-bordered table-striped">
+            <thead class="bg-dark text-white">
+                <tr>
+                    <th>ID</th>
+                    <th>Wartość zamówienia</th>
+                    <th>Data zamówienia</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var zamowienie in Model)
+                {
+                    <tr>
+                        <td class="text-white bg-secondary">@zamowienie.Id</td>
+                        <td class="text-white bg-secondary">@zamowienie.CenaCalkowita.ToString("C")</td>
+                        <td class="text-white bg-secondary">@zamowienie.DataZamowienia.ToString("dd-MM-yyyy HH:mm")</td>
+                        <td class="text-white bg-secondary">
+                            <a asp-action="ShowOrder" asp-route-id="@zamowienie.Id" class="btn btn-info text-white">Szczegóły</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <h2>Brak zamówień</h2>
+}

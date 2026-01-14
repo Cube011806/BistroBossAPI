@@ -55,6 +55,21 @@ html {
 
 .form-label {
     color: black !important;
+    font-weight: 600 !important;
+}
+
+textarea.form-control {
+    background-color: white !important;
+    color: #212529 !important; /* standard black text color */
+    border: 1px solid #ccc !important;
+    box-shadow: 0 .1rem .3rem rgba(0, 0, 0, .1) !important;
+}
+
+input.form-control {
+    background-color: #6c757d !important;
+    color: white !important;
+    border: 1px solid #444 !important;
+    box-shadow: none !important;
 }
 
 .card.custom-dark {
@@ -92,6 +107,38 @@ html {
 .star-display {
     color: #ffc107;
     font-size: 1.5rem;
+}
+
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 0.3rem;
+    font-size: 2rem;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s;
+    user-select: none;
+}
+
+.star-rating input:checked ~ label {
+    color: #ffc107;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffc107;
+}
+
+.star-rating label {
+    pointer-events: auto;
 }
 
 .search-bar {
@@ -151,4 +198,37 @@ nav .btn {
 
 .container h2 {
     color: white;
+}
+
+table.table {
+    color: #f1f1f1;
+    background-color: #6c757d;
+    overflow: hidden;
+}
+
+table.table thead {
+    background-color: #343a40;
+    color: #ffc107;
+}
+
+table.table th,
+table.table td {
+    vertical-align: middle;
+    border-color: #444;
+}
+
+.btn-danger {
+    min-width: 70px;
+    font-weight: 600;
+}
+
+.btn-success {
+    min-width: 150px;
+    font-weight: 600;
+}
+
+p.text-center {
+    font-style: italic;
+    font-size: 1.2rem;
+    color: #ffffff;
 }

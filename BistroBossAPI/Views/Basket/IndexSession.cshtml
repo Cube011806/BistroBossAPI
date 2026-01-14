@@ -1,0 +1,79 @@
+﻿@model Koszyk
+
+@{
+    ViewData["Title"] = "Twój Koszyk (Gość)";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["ErrorMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>@TempData["SuccessMessage"]</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="container py-3">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header text-white text-center">
+                    <h3 class="mb-0">Twój Koszyk (Gość)</h3>
+                </div>
+                <div class="card-body">
+
+                    @if (!Model.KoszykProdukty.Any())
+                    {
+                        <p class="text-center">Koszyk jest pusty.</p>
+                    }
+                    else
+                    {
+                        <table class="table table-bordered table-striped">
+                            <thead class="bg-dark text-white">
+                                <tr>
+                                    <th>Produkt</th>
+                                    <th>Ilość</th>
+                                    <th>Cena jednostkowa</th>
+                                    <th>Łącznie</th>
+                                    <th>Akcje</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.KoszykProdukty)
+                                {
+                                    <tr>
+                                        <td class="text-white bg-secondary">@item.Produkt.Nazwa</td>
+                                        <td class="text-white bg-secondary">@item.Ilosc</td>
+                                        <td class="text-white bg-secondary">@item.Produkt.Cena.ToString("c")</td>
+                                        <td class="text-white bg-secondary">@(item.Produkt.Cena * item.Ilosc) zł</td>
+                                        <td class="text-white bg-secondary">
+                                            <form asp-action="RemoveFromBasket" asp-route-id="@item.ProduktId" method="post">
+                                                <button class="btn btn-danger btn-sm">Usuń produkt</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <div class="text-end mt-3">
+                            <h5><strong>Łączna cena: @Model.KoszykProdukty.Sum(p => p.Produkt.Cena * p.Ilosc).ToString("c")</strong></h5>
+                        </div>
+                        <div class="text-end mt-3">
+                            <a asp-controller="Checkout" asp-action="Index" class="btn btn-success">
+                                Złóż zamówienie
+                            </a>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
