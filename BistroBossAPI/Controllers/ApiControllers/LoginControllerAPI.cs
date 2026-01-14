@@ -43,7 +43,7 @@ namespace BistroBossAPI.Controllers.ApiControllers
             {
                 var expireDate = model.RememberMe ? DateTime.UtcNow.AddYears(10) : DateTime.UtcNow.AddHours(3);
 
-                var token = GenerateJwtToken(user, expireDate);
+                var token = user.GenerateJwtToken(_configuration, expireDate);
 
                 return Ok(new
                 {
@@ -58,9 +58,17 @@ namespace BistroBossAPI.Controllers.ApiControllers
                 message = "Nieprawidłowa nazwa użytkownika lub hasło."
             });
         }
+    }
 
-        private string GenerateJwtToken(Uzytkownik user, DateTime expires)
+    public static class UzytkownikJwtExtension
+    {
+        public static string GenerateJwtToken(this Uzytkownik user, IConfiguration configuration, DateTime? expires = null)
         {
+            if (expires == null)
+            {
+                expires = DateTime.UtcNow.AddHours(3);
+            }
+
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
@@ -68,12 +76,12 @@ namespace BistroBossAPI.Controllers.ApiControllers
                 new Claim(ClaimTypes.NameIdentifier, user.Id)
             };
 
-            var keyBytes = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+            var keyBytes = Encoding.UTF8.GetBytes(configuration["Jwt:Key"]);
             var authSigningKey = new SymmetricSecurityKey(keyBytes);
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+                issuer: configuration["Jwt:Issuer"],
+                audience: configuration["Jwt:Audience"],
                 expires: expires, // Używamy przekazanej daty
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)

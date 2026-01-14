@@ -1,15 +1,19 @@
 ﻿using BistroBossAPI.Controllers;
+using BistroBossAPI.Controllers.ApiControllers;
 using BistroBossAPI.Models;
 using BistroBossAPI.Models.Dto;
 using BistroBossAPI.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 public class BasketController : BaseController
 {
     private readonly UserManager<Uzytkownik> _userManager;
     private readonly HttpClient _httpClient;
+    private readonly IConfiguration _configuration;
 
     public BasketController(
         ProductService productService,
@@ -17,15 +21,23 @@ public class BasketController : BaseController
         CheckoutService checkoutService,
         OrderService orderService,
         UserManager<Uzytkownik> userManager,
-        HttpClient httpClient)
+        HttpClient httpClient,
+        IConfiguration configuration)
         : base(productService, basketService, checkoutService, orderService)
     {
         _userManager = userManager;
         _httpClient = httpClient;
+        _configuration = configuration;
     }
 
     public async Task<IActionResult> Index()
     {
+        if (User.Identity.IsAuthenticated)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+        }
+
         if (!User.Identity.IsAuthenticated)
         {
             var json = HttpContext.Session.GetString("basket");
@@ -57,6 +69,12 @@ public class BasketController : BaseController
     [HttpPost]
     public async Task<IActionResult> AddToBasket(int produktId)
     {
+        if (User.Identity.IsAuthenticated)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+        }
+
         if (!User.Identity.IsAuthenticated)
         {
             var json = HttpContext.Session.GetString("basket");
@@ -105,6 +123,12 @@ public class BasketController : BaseController
     [HttpPost]
     public async Task<IActionResult> RemoveFromBasket(int id)
     {
+        if (User.Identity.IsAuthenticated)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+        }
+
         var userId = _userManager.GetUserId(User);
 
         var response = await _httpClient.DeleteAsync(
@@ -130,8 +154,14 @@ public class BasketController : BaseController
 
 
     [HttpPost]
-    public IActionResult RemoveFromBasketGuest(int produktId)
+    public async Task<IActionResult> RemoveFromBasketGuest(int produktId)
     {
+        if (User.Identity.IsAuthenticated)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+        }
+
         var json = HttpContext.Session.GetString("basket");
 
         if (json == null)

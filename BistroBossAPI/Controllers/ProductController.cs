@@ -1,4 +1,5 @@
 ﻿// Controllers/ProductController.cs
+using BistroBossAPI.Controllers.ApiControllers;
 using BistroBossAPI.Models;
 using BistroBossAPI.Models.Dto;
 using BistroBossAPI.Services;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -18,6 +20,7 @@ namespace BistroBossAPI.Controllers
         private readonly UserManager<Uzytkownik> _userManager;
         private readonly HttpClient _httpClient; // Klient HTTP
         private readonly ProductService _productService;
+        private readonly IConfiguration _configuration;
         
 
         public ProductController(
@@ -26,12 +29,14 @@ namespace BistroBossAPI.Controllers
             CheckoutService checkoutService,
             OrderService orderService,
             UserManager<Uzytkownik> userManager,
-            HttpClient httpClient) // Wstrzyknięcie klienta HTTP
+            HttpClient httpClient,
+            IConfiguration configuration) // Wstrzyknięcie klienta HTTP
             : base(productService, basketService, checkoutService, orderService)
         {
             _userManager = userManager;
             _productService = productService;
             _httpClient = httpClient;
+            _configuration = configuration;
         }
 
         private async Task UstawListeKategorii()
@@ -65,6 +70,13 @@ namespace BistroBossAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(ProduktAddDto dto, string? nowaKategoria, IFormFile? zdjeciePlik)
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
+
             // Zapis do pliku
             if (zdjeciePlik != null && zdjeciePlik.Length > 0)
             {
@@ -118,6 +130,12 @@ namespace BistroBossAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
+
             // Wysyłanie żądania do api
             var response = await _httpClient.GetAsync($"http://localhost:7000/api/products/{id}");
 
@@ -141,6 +159,13 @@ namespace BistroBossAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, ProduktEditDto dto, string? nowaKategoria, IFormFile? zdjeciePlik)
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
+
             if (zdjeciePlik != null && zdjeciePlik.Length > 0)
             {
                 var folderPath = Path.Combine("wwwroot", "images", "produkty");
@@ -180,6 +205,13 @@ namespace BistroBossAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
+
             var response = await _httpClient.GetAsync($"http://localhost:7000/api/products/{id}");
 
             if (!response.IsSuccessStatusCode)
@@ -198,6 +230,13 @@ namespace BistroBossAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
+
             var response = await _httpClient.DeleteAsync($"http://localhost:7000/api/products/{id}");
 
             if (response.IsSuccessStatusCode)
@@ -224,6 +263,13 @@ namespace BistroBossAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
+
             var response = await _httpClient.GetAsync($"http://localhost:7000/api/products/{id}");
 
             if (!response.IsSuccessStatusCode)
