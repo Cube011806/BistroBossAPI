@@ -1,8 +1,10 @@
-﻿using BistroBossAPI.Models;
+﻿using BistroBossAPI.Controllers.ApiControllers;
+using BistroBossAPI.Models;
 using BistroBossAPI.Models.Dto;
 using BistroBossAPI.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace BistroBossAPI.Controllers
@@ -11,6 +13,7 @@ namespace BistroBossAPI.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly UserManager<Uzytkownik> _userManager;
+        private readonly IConfiguration _configuration;
 
         public OrderController(
             HttpClient httpClient,
@@ -18,15 +21,24 @@ namespace BistroBossAPI.Controllers
             ProductService productService,
             BasketService basketService,
             CheckoutService checkoutService,
-            OrderService orderService)
+            OrderService orderService,
+            IConfiguration configuration)
             : base(productService, basketService, checkoutService, orderService)
         {
             _httpClient = httpClient;
             _userManager = userManager;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> ShowOrder(int id)
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
+
             ViewBag.IsGuest = User.Identity.IsAuthenticated ? "0" : "1";
 
             var response = await _httpClient.GetAsync($"http://localhost:7000/api/orders/{id}");
@@ -45,6 +57,13 @@ namespace BistroBossAPI.Controllers
         }
         public async Task<IActionResult> ShowMyOrders()
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
+
             var userId = _userManager.GetUserId(User);
 
             var response = await _httpClient.GetAsync($"http://localhost:7000/api/orders/user/{userId}");
@@ -65,6 +84,13 @@ namespace BistroBossAPI.Controllers
 
         public async Task<IActionResult> ShowAllOrders(int? KwerendaWyszukujaca)
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
+
             HttpResponseMessage response;
 
             if (KwerendaWyszukujaca.HasValue)

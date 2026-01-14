@@ -1,9 +1,11 @@
 ﻿using BistroBossAPI.Controllers;
+using BistroBossAPI.Controllers.ApiControllers;
 using BistroBossAPI.Models;
 using BistroBossAPI.Models.Dto;
 using BistroBossAPI.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -11,18 +13,26 @@ public class CheckoutController : BaseController
 {
     private readonly UserManager<Uzytkownik> _userManager;
     private readonly HttpClient _httpClient;
+    private readonly IConfiguration _configuration;
 
     public CheckoutController(UserManager<Uzytkownik> userManager, HttpClient httpClient,
         ProductService productService, BasketService basketService,
-        CheckoutService checkoutService, OrderService orderService)
+        CheckoutService checkoutService, OrderService orderService, IConfiguration configuration)
         : base(productService, basketService, checkoutService, orderService)
     {
         _userManager = userManager;
         _httpClient = httpClient;
+        _configuration = configuration;
     }
 
     public async Task<IActionResult> Index()
     {
+        if (User.Identity.IsAuthenticated)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+        }
+
         string userId = User.Identity.IsAuthenticated
             ? _userManager.GetUserId(User)
             : "GUEST";
@@ -47,6 +57,12 @@ public class CheckoutController : BaseController
     [HttpPost]
     public async Task<IActionResult> SubmitOrder(ZamowienieAddDto dto)
     {
+        if (User.Identity.IsAuthenticated)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+        }
+
         bool isGuest = !User.Identity.IsAuthenticated;
 
         dto.UserId = isGuest

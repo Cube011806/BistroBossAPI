@@ -1,8 +1,10 @@
-﻿using BistroBossAPI.Models;
+﻿using BistroBossAPI.Controllers.ApiControllers;
+using BistroBossAPI.Models;
 using BistroBossAPI.Models.Dto;
 using BistroBossAPI.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace BistroBossAPI.Controllers
@@ -11,18 +13,27 @@ namespace BistroBossAPI.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly UserManager<Uzytkownik> _userManager;
+        private readonly IConfiguration _configuration;
 
         public MenuController(HttpClient httpClient, UserManager<Uzytkownik> userManager, 
             ProductService productService, BasketService basketService, 
-            CheckoutService checkoutService, OrderService orderService)
+            CheckoutService checkoutService, OrderService orderService, IConfiguration configuration)
             : base(productService, basketService, checkoutService, orderService)
         {
             _httpClient = httpClient;
             _userManager = userManager;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> Index()
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
+
             var response = await _httpClient.GetAsync("http://localhost:7000/api/products/menu");
 
             if (!response.IsSuccessStatusCode)
@@ -42,6 +53,13 @@ namespace BistroBossAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToBasket(int produktId)
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
+
             // Gość
             if (!User.Identity.IsAuthenticated)
             {
