@@ -47,6 +47,7 @@ namespace BistroBossAPI.Controllers.ApiControllers
 
                 return Ok(new
                 {
+                    userId = user.Id,
                     token = token,
                     expiration = DateTime.UtcNow.AddHours(3)
                 });
