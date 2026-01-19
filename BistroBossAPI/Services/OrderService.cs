@@ -85,6 +85,18 @@ namespace BistroBossAPI.Services
             return (true, dtoOut, "");
         }
 
+        public async Task<bool> IsOrderForUser(string? userId)
+        {
+            if (userId == null)
+            {
+                return false;
+            }
+
+            return await _dbContext.Zamowienia
+                .Where(z => z.UzytkownikId == userId)
+                .FirstOrDefaultAsync() != null;
+        }
+
         public async Task<(bool Success, ZamowienieDetailsDto? Zamowienie, string ErrorMessage)>GetOrderAsync(int id)
         {
             var zamowienie = await _dbContext.Zamowienia
