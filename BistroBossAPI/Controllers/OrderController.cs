@@ -120,6 +120,11 @@ namespace BistroBossAPI.Controllers
                     $"http://localhost:7000/api/orders/all"
                 );
 
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Forbid();
+                }
+
                 var json = await response.Content.ReadAsStringAsync();
 
                 // 🔥 tutaj API zwraca listę → deserializujemy listę
