@@ -2,6 +2,9 @@
 using BistroBossAPI.Models.Dto;
 using BistroBossAPI.Services;
 using Humanizer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -9,14 +12,18 @@ namespace BistroBossAPI.Controllers.ApiControllers
 {
     [Route("api/products")]
     [ApiController]
+    [AllowAnonymous]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ProductControllerAPI : ControllerBase
     {
         private readonly ProductService _productService;
+        private readonly UserManager<Uzytkownik> _userManager;
 
         // Wstrzykujemy Serwis
-        public ProductControllerAPI(ProductService productService)
+        public ProductControllerAPI(ProductService productService, UserManager<Uzytkownik> userManager)
         {
             _productService = productService;
+            _userManager = userManager;
         }
 
         // Przykład: GET /api/products/menu
@@ -47,6 +54,11 @@ namespace BistroBossAPI.Controllers.ApiControllers
         [HttpPost]
         public async Task<IActionResult> AddProduct([FromBody] ProduktAddDto dto, [FromQuery] string? nowaKategoria)
         {
+            if(!await _userManager.IsAdminAsync(User))
+            {
+                return Unauthorized();
+            }
+
             if (!ModelState.IsValid)
             {
                 // Ręczne zwrócenie problemu, jeśli dane są strukturalnie niepoprawne
@@ -73,6 +85,11 @@ namespace BistroBossAPI.Controllers.ApiControllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProduktEditDto dto, [FromQuery] string? nowaKategoria)
         {
+            if (!await _userManager.IsAdminAsync(User))
+            {
+                return Unauthorized();
+            }
+
             var (success, produkt, errorMessage) = await _productService.UpdateProductAsync(id, dto, nowaKategoria);
 
             if (success)
@@ -85,6 +102,11 @@ namespace BistroBossAPI.Controllers.ApiControllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
+            if (!await _userManager.IsAdminAsync(User))
+            {
+                return Unauthorized();
+            }
+
             var (success, errorMessage) = await _productService.DeleteProductAsync(id);
 
             if (success)
