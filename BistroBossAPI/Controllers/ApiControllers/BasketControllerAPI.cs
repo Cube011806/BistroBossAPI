@@ -1,7 +1,10 @@
 ﻿using BistroBossAPI.Models;
 using BistroBossAPI.Models.Dto;
 using BistroBossAPI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,20 +12,29 @@ namespace BistroBossAPI.Controllers.ApiControllers
 {
     [Route("api/baskets")]
     [ApiController]
+    [AllowAnonymous]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class BasketControllerAPI : ControllerBase
     {
         private readonly BasketService _basketService;
+        private readonly UserManager<Uzytkownik> _userManager;
 
         // Wstrzykujemy Serwis
-        public BasketControllerAPI(BasketService basketService)
+        public BasketControllerAPI(BasketService basketService, UserManager<Uzytkownik> userManager)
         {
             _basketService = basketService;
+            _userManager = userManager;
         }
 
         //Przykład: GET /api/baskets/{userId}
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetBasket(string userId)
         {
+            if (userId != "GUEST" && _userManager.IsNotAllowedInEndpoint(userId, User))
+            {
+                return Unauthorized();
+            }
+
             var basket = await _basketService.GetBasketForUserAsync(userId);
             return Ok(basket);
         }
@@ -31,6 +43,11 @@ namespace BistroBossAPI.Controllers.ApiControllers
         [HttpPost]
         public async Task<IActionResult> AddToBasket([FromQuery] string userId, [FromQuery] int produktId)
         {
+            if (userId != "GUEST" && _userManager.IsNotAllowedInEndpoint(userId, User))
+            {
+                return Unauthorized();
+            }
+
             var result = await _basketService.AddToBasketAsync(userId, produktId);
 
             if (!result.Success)
@@ -43,6 +60,11 @@ namespace BistroBossAPI.Controllers.ApiControllers
         [HttpDelete("{userId}/products/{koszykProduktId}")]
         public async Task<IActionResult> RemoveFromBasket(string userId, int koszykProduktId)
         {
+            if (userId != "GUEST" && _userManager.IsNotAllowedInEndpoint(userId, User))
+            {
+                return Unauthorized();
+            }
+
             var result = await _basketService.RemoveFromBasketAsync(userId, koszykProduktId);
 
             if (!result.Success)
