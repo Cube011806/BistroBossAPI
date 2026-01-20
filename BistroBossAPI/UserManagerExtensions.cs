@@ -14,7 +14,7 @@ namespace BistroBossAPI
         public static async Task<bool> IsAdminAsync(this UserManager<Uzytkownik> userManager, ClaimsPrincipal claims)
         {
             var user = await userManager.GetUserAsync(claims);
-            return user?.AccessLevel == 2;
+            return user?.AccessLevel >= 1;
         }
     }
 }
