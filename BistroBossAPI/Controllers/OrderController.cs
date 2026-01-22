@@ -55,6 +55,31 @@ namespace BistroBossAPI.Controllers
 
             return View(order);
         }
+        public async Task<IActionResult> ShowOrderAdmin(int id)
+        {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
+
+            ViewBag.IsGuest = User.Identity.IsAuthenticated ? "0" : "1";
+
+            var response = await _httpClient.GetAsync($"http://localhost:7000/api/orders/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["ErrorMessage"] = "Nie znaleziono zamówienia.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var order = JsonSerializer.Deserialize<ZamowienieDetailsDto>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return View(order);
+        }
         public async Task<IActionResult> ShowMyOrders()
         {
 

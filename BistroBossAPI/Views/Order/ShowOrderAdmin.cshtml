@@ -138,20 +138,20 @@
             {
                 if (Model.SposobDostawy)
                 {
-                    <a asp-action="SetInDelivery" asp-route-id="@Model.Id" class="btn btn-success text-white">Ustaw status zamówienia jako 'W dostawie'</a>
+                    <a asp-controller="Manage" asp-action="SetInDelivery" asp-route-id="@Model.Id" class="btn btn-success text-white">Ustaw status zamówienia jako 'W dostawie'</a>
                 }
                 else
                 {
-                    <a asp-action="SetInDelivery" asp-route-id="@Model.Id" class="btn btn-success text-white">Ustaw status zamówienia jako 'Gotowe do odbioru'</a>
+                    <a asp-controller="Manage" asp-action="SetInDelivery" asp-route-id="@Model.Id" class="btn btn-success text-white">Ustaw status zamówienia jako 'Gotowe do odbioru'</a>
                 }
             }
             else if (Model.Status == 3)
             {
-                <a asp-action="SetCompleted" asp-route-id="@Model.Id" class="btn btn-success text-white">Ustaw status zamówienia jako 'Zrealizowane'</a>
+                <a asp-controller="Manage" asp-action="SetCompleted" asp-route-id="@Model.Id" class="btn btn-success text-white">Ustaw status zamówienia jako 'Zrealizowane'</a>
             }
             @if (Model.Status != 3 && Model.Status != 4 && Model.Status != 0)
             {
-                <a asp-action="SetCancelled" asp-route-id="@Model.Id" class="btn btn-danger text-white">Anuluj zamówienie</a>
+                <a asp-controller="Manage" asp-action="SetCancelled" asp-route-id="@Model.Id" class="btn btn-danger text-white">Anuluj zamówienie</a>
             }
         </div>
     </div>
