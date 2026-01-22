@@ -1,7 +1,6 @@
-using BistroBossAPI.Data;
+﻿using BistroBossAPI.Data;
 using BistroBossAPI.Models;
 using BistroBossAPI.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,15 +9,29 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// -------------------------------
+// DATABASE
+// -------------------------------
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<Uzytkownik>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+// -------------------------------
+// IDENTITY
+// -------------------------------
+builder.Services.AddDefaultIdentity<Uzytkownik>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>();
 
+// -------------------------------
+// AUTHENTICATION (JWT + Identity)
+// -------------------------------
 builder.Services.AddAuthentication()
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
@@ -29,35 +42,44 @@ builder.Services.AddAuthentication()
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
 
-            // Pobieranie warto�ci z appsettings.json
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "ToMusiBycDlugiSekretnyKluczMin32Znaki!"))
+                Encoding.UTF8.GetBytes(
+                    builder.Configuration["Jwt:Key"]
+                    ?? "ToMusiBycDlugiSekretnyKluczMin32Znaki!"
+                ))
         };
     });
 
+// -------------------------------
+// SERVICES (DI)
+// -------------------------------
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<BasketService>();
 builder.Services.AddScoped<CheckoutService>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<ManageService>(); // ← BRAKOWAŁO!
 
+builder.Services.AddHttpClient(); // ← potrzebne dla MVC kontrolerów
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
+
+// -------------------------------
+// MVC + API
+// -------------------------------
 builder.Services.AddControllersWithViews()
     .ConfigureApiBehaviorOptions(options =>
     {
         options.SuppressModelStateInvalidFilter = true;
     });
 
-builder.Services.AddHttpClient();
-
-builder.Services.AddDistributedMemoryCache();
-
-builder.Services.AddSession();
-
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// -------------------------------
+// MIDDLEWARE PIPELINE
+// -------------------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -66,29 +88,33 @@ else
 {
     app.UseExceptionHandler("/Home/Error");
 }
+
+app.UseStaticFiles(); // ← ważne, żeby było przed routingiem
+
 app.UseRouting();
+
+app.UseSession(); // ← musi być przed auth
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
-app.UseSession();
-
+// -------------------------------
+// ROUTING
+// -------------------------------
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages()
-   .WithStaticAssets();
+app.MapRazorPages();
 
+// -------------------------------
+// SEED GUEST USER
+// -------------------------------
 async Task SeedGuestUserAsync(WebApplication app)
 {
     using var scope = app.Services.CreateScope();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Uzytkownik>>();
 
-    // sprawdzamy czy u�ytkownik GUEST ju� istnieje
     var existing = await userManager.FindByIdAsync("GUEST");
     if (existing != null)
         return;
@@ -108,4 +134,5 @@ async Task SeedGuestUserAsync(WebApplication app)
 
 await SeedGuestUserAsync(app);
 
+// -------------------------------
 app.Run();

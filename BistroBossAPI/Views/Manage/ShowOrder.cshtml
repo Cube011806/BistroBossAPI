@@ -21,6 +21,42 @@
     </div>
 }
 
+<style>
+    /* Stronger selector and !important to override Bootstrap */
+    div.card {
+        background-color: #444444 !important;
+        border: none;
+        border-radius: 10px;
+        color: white;
+    }
+
+    div.card-header {
+        background-color: #1a237e !important;
+        color: white !important;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        text-align: center;
+        padding: 1rem;
+    }
+
+        div.card-header h3 {
+            color: white !important;
+            margin: 0;
+        }
+
+    div.card-body {
+        background-color: #444444 !important;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        padding: 1rem;
+    }
+
+    .star-display {
+        color: #ffc107; /* gold */
+        font-size: 1.5rem;
+    }
+</style>
+
 @functions {
     public IHtmlContent GetStars(int rating)
     {

@@ -2,7 +2,8 @@
 {
     public class OpiniaDto
     {
-        public int Ocena { get; set; }
+        public int Id { get; set; }
         public string Komentarz { get; set; }
+        public byte Ocena { get; set; }
     }
 }
