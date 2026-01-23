@@ -5,6 +5,7 @@ using BistroBossAPI.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 
 namespace BistroBossAPI.Controllers
@@ -28,6 +29,15 @@ namespace BistroBossAPI.Controllers
             _httpClient = httpClient;
             _userManager = userManager;
             _configuration = configuration;
+        }
+        private async Task SetJwtAsync()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+            }
         }
 
         public async Task<IActionResult> ShowOrder(int id)
@@ -159,5 +169,37 @@ namespace BistroBossAPI.Controllers
                 return View(zamowienia);
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> ReOrder(int id, bool sposobDostawy, string Miejscowosc, string Ulica, string NumerBudynku, string KodPocztowy)
+        {
+            await SetJwtAsync();
+
+            var body = new
+            {
+                sposobDostawy,
+                Miejscowosc,
+                Ulica,
+                NumerBudynku,
+                KodPocztowy
+            };
+
+            var json = JsonSerializer.Serialize(body);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"http://localhost:7000/api/orders/reorder/{id}", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["ErrorMessage"] = await response.Content.ReadAsStringAsync();
+                return RedirectToAction("ShowOrder", new { id });
+            }
+
+            var result = JsonSerializer.Deserialize<Dictionary<string, int>>(await response.Content.ReadAsStringAsync());
+            var newId = result["id"];
+
+            TempData["SuccessMessage"] = "Zamówienie zostało ponowione!";
+            return RedirectToAction("ShowOrder", new { id = newId });
+        }
+
     }
 }

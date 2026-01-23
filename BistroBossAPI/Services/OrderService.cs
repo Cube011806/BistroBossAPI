@@ -209,6 +209,59 @@ namespace BistroBossAPI.Services
                 KodPocztowy = z.KodPocztowy
             }).ToList();
         }
+        public async Task<bool> HasActiveOrderAsync(string userId)
+        {
+            return await _dbContext.Zamowienia
+                .AnyAsync(z => z.UzytkownikId == userId && z.Status != 4 && z.Status != 0);
+        }
+
+        public async Task<(bool Success, Zamowienie? Zamowienie, string? ErrorMessage)> GetOrderEntityAsync(int id)
+        {
+            var order = await _dbContext.Zamowienia
+                .Include(z => z.ZamowioneProdukty)
+                .FirstOrDefaultAsync(z => z.Id == id);
+
+            if (order == null)
+                return (false, null, "Nie znaleziono zamówienia.");
+
+            return (true, order, null);
+        }
+
+        public async Task<(bool Success, Zamowienie Zamowienie, string? ErrorMessage)> ReOrderAsync(
+            Zamowienie oldOrder,
+            string userId,
+            ReOrderRequestDto dto)
+        {
+            var newOrder = new Zamowienie
+            {
+                UzytkownikId = userId,
+                Status = 1,
+                PrzewidywanyCzasRealizacji = oldOrder.PrzewidywanyCzasRealizacji,
+                CenaCalkowita = oldOrder.CenaCalkowita,
+                SposobDostawy = dto.SposobDostawy,
+                Imie = oldOrder.Imie,
+                Nazwisko = oldOrder.Nazwisko,
+                Email = oldOrder.Email,
+                NumerTelefonu = oldOrder.NumerTelefonu,
+                Ulica = dto.SposobDostawy ? dto.Ulica : "",
+                NumerBudynku = dto.SposobDostawy ? dto.NumerBudynku : "",
+                Miejscowosc = dto.SposobDostawy ? dto.Miejscowosc : "",
+                KodPocztowy = dto.SposobDostawy ? dto.KodPocztowy : "",
+                DataZamowienia = DateTime.Now,
+                ZamowioneProdukty = oldOrder.ZamowioneProdukty.Select(zp => new ZamowienieProdukt
+                {
+                    ProduktId = zp.ProduktId,
+                    Ilosc = zp.Ilosc,
+                    Cena = zp.Cena
+                }).ToList()
+            };
+
+            _dbContext.Zamowienia.Add(newOrder);
+            await _dbContext.SaveChangesAsync();
+
+            return (true, newOrder, null);
+        }
+
 
     }
 }

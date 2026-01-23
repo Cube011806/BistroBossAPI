@@ -100,5 +100,37 @@ namespace BistroBossAPI.Controllers.ApiControllers
 
             return Ok(result.Zamowienie);
         }
+        // POST /api/orders/reorder/15
+        [HttpPost("reorder/{id}")]
+        public async Task<IActionResult> ReOrder(int id, [FromBody] ReOrderRequestDto dto)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            if (userId == null)
+                return Unauthorized();
+
+            // Sprawdzenie czy użytkownik ma aktywne zamówienie
+            if (await _orderService.HasActiveOrderAsync(userId))
+            {
+                return BadRequest(new { message = "Żeby ponownie coś zamówić, nie możesz mieć zamówienia aktualnie w realizacji!" });
+            }
+
+            // Pobranie starego zamówienia
+            var oldOrderResult = await _orderService.GetOrderEntityAsync(id);
+
+            if (!oldOrderResult.Success || oldOrderResult.Zamowienie == null)
+                return NotFound(new { message = oldOrderResult.ErrorMessage });
+
+            var oldOrder = oldOrderResult.Zamowienie;
+
+            // Tworzenie nowego zamówienia
+            var newOrder = await _orderService.ReOrderAsync(oldOrder, userId, dto);
+
+            if (!newOrder.Success)
+                return BadRequest(new { message = newOrder.ErrorMessage });
+
+            return Ok(new { id = newOrder.Zamowienie.Id });
+        }
+
     }
 }
