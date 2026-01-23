@@ -131,6 +131,24 @@ namespace BistroBossAPI.Controllers.ApiControllers
 
             return Ok(new { id = newOrder.Zamowienie.Id });
         }
+        // POST /api/orders/review
+        [HttpPost("review")]
+        public async Task<IActionResult> AddReview([FromBody] AddReviewDto dto)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return Unauthorized();
+
+            if (dto.Ocena < 1 || dto.Ocena > 5 || string.IsNullOrWhiteSpace(dto.Komentarz))
+                return BadRequest(new { message = "Wszystkie pola muszą być wypełnione!" });
+
+            var result = await _orderService.AddReviewAsync(dto, userId);
+
+            if (!result.Success)
+                return BadRequest(new { message = result.ErrorMessage });
+
+            return Ok(new { message = "Pomyślnie dodano opinię!" });
+        }
 
     }
 }

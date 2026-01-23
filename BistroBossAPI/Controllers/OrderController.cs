@@ -200,6 +200,35 @@ namespace BistroBossAPI.Controllers
             TempData["SuccessMessage"] = "Zamówienie zostało ponowione!";
             return RedirectToAction("ShowOrder", new { id = newId });
         }
+        public IActionResult AddReview(int ZamowienieId)
+        {
+            var model = new AddReviewDto
+            {
+                ZamowienieId = ZamowienieId,
+                Ocena = 1
+            };
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddReview(AddReviewDto opinia)
+        {
+            await SetJwtAsync();
+
+            var json = JsonSerializer.Serialize(opinia);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync("http://localhost:7000/api/orders/review", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                TempData["ErrorMessage"] = error;
+                return RedirectToAction("AddReview", new { opinia.ZamowienieId });
+            }
+
+            TempData["SuccessMessage"] = "Pomyślnie dodano opinię!";
+            return RedirectToAction("ShowOrder", new { id = opinia.ZamowienieId });
+        }
 
     }
 }

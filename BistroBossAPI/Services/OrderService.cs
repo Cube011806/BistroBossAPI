@@ -261,6 +261,36 @@ namespace BistroBossAPI.Services
 
             return (true, newOrder, null);
         }
+        public async Task<(bool Success, string? ErrorMessage)> AddReviewAsync(AddReviewDto dto, string userId)
+        {
+            var order = await _dbContext.Zamowienia
+                .Include(z => z.Opinia)
+                .FirstOrDefaultAsync(z => z.Id == dto.ZamowienieId);
+
+            if (order == null)
+                return (false, "Nie znaleziono zamówienia.");
+
+            if (order.UzytkownikId != userId)
+                return (false, "Nie możesz dodać opinii do cudzego zamówienia.");
+
+            if (order.Opinia != null)
+                return (false, "To zamówienie ma już opinię.");
+
+            var opinia = new Opinia
+            {
+                ZamowienieId = dto.ZamowienieId,
+                UzytkownikId = userId,
+                Ocena = dto.Ocena,
+                Komentarz = dto.Komentarz
+            };
+
+            _dbContext.Opinie.Add(opinia);
+            order.Opinia = opinia;
+
+            await _dbContext.SaveChangesAsync();
+
+            return (true, null);
+        }
 
 
     }
