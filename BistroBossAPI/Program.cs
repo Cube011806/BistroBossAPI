@@ -1,4 +1,5 @@
-﻿using BistroBossAPI.Data;
+﻿using BistroBossAPI;
+using BistroBossAPI.Data;
 using BistroBossAPI.Models;
 using BistroBossAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -59,12 +60,17 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<BasketService>();
 builder.Services.AddScoped<CheckoutService>();
 builder.Services.AddScoped<OrderService>();
-builder.Services.AddScoped<ManageService>(); // ← BRAKOWAŁO!
+builder.Services.AddScoped<ManageService>();
 
-builder.Services.AddHttpClient(); // ← potrzebne dla MVC kontrolerów
+builder.Services.AddHttpClient(); 
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
+
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // -------------------------------
 // MVC + API
@@ -89,11 +95,11 @@ else
     app.UseExceptionHandler("/Home/Error");
 }
 
-app.UseStaticFiles(); // ← ważne, żeby było przed routingiem
+app.UseStaticFiles(); 
 
 app.UseRouting();
 
-app.UseSession(); // ← musi być przed auth
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -162,7 +162,7 @@ namespace BistroBossAPI.Controllers
 
                 var json = await response.Content.ReadAsStringAsync();
 
-                // 🔥 tutaj API zwraca listę → deserializujemy listę
+                // tutaj API zwraca listę → deserializujemy listę
                 var zamowienia = JsonSerializer.Deserialize<List<ZamowienieDto>>(json,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 

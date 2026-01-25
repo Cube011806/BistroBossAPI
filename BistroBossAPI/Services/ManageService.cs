@@ -9,12 +9,12 @@ namespace BistroBossAPI.Services
     public class ManageService
     {
         private readonly ApplicationDbContext _db;
-        //private readonly IEmailService _emailService;
+        private readonly IEmailService _emailService;
 
-        public ManageService(ApplicationDbContext db)//, IEmailService emailService)
+        public ManageService(ApplicationDbContext db, IEmailService emailService)
         {
             _db = db;
-            //_emailService = emailService;
+            _emailService = emailService;
         }
 
         public async Task<List<ZamowienieListDto>> GetAllOrdersAsync(int? search)
@@ -117,7 +117,7 @@ namespace BistroBossAPI.Services
                 ? "<p>Twoje zamówienie jest w drodze!</p>"
                 : "<p>Twoje zamówienie jest gotowe do odbioru!</p>";
 
-            //_emailService.SendEmail(z.Email, emailTitle, emailBody);
+            _emailService.SendEmail(z.Email, emailTitle, emailBody);
 
             await _db.SaveChangesAsync();
 

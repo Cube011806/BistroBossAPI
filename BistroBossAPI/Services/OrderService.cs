@@ -9,12 +9,15 @@ namespace BistroBossAPI.Services
     {
         private readonly ApplicationDbContext _dbContext;
 
-        public OrderService(ApplicationDbContext dbContext)
+        private readonly IEmailService _emailService;
+
+        public OrderService(ApplicationDbContext dbContext, IEmailService emailService)
         {
             _dbContext = dbContext;
+            _emailService = emailService;
         }
 
-        public async Task<(bool Success, ZamowienieDto? Zamowienie, string ErrorMessage)>CreateOrderAsync(ZamowienieAddDto dto)
+        public async Task<(bool Success, ZamowienieDto? Zamowienie, string ErrorMessage)> CreateOrderAsync(ZamowienieAddDto dto)
         {
             var koszyk = await _dbContext.Koszyki
                 .Include(k => k.KoszykProdukty)
@@ -64,6 +67,45 @@ namespace BistroBossAPI.Services
             _dbContext.KoszykProdukty.RemoveRange(koszyk.KoszykProdukty);
             await _dbContext.SaveChangesAsync();
 
+            string messageDelivery = $@"
+            <html>
+                <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                    <h2 style='color: #4CAF50;'>Dziękujemy za Twoje zamówienie!</h2>
+                    <p><strong>Numer zamówienia:</strong> {zamowienie.Id}</p>
+                    <p><strong>Data zamówienia:</strong> {zamowienie.DataZamowienia:dd.MM.yyyy HH:mm}</p>
+                    <p><strong>Przewidywany czas realizacji:</strong> {zamowienie.PrzewidywanyCzasRealizacji} minut</p>
+                    <p><strong>Cena całkowita:</strong> {zamowienie.CenaCalkowita} zł</p>
+                    <p><strong>Adres dostawy:</strong><br />
+                        {zamowienie.Miejscowosc}, {zamowienie.Ulica} {zamowienie.NumerBudynku}<br />
+                        {zamowienie.KodPocztowy}
+                    </p>
+                    <hr style='margin: 20px 0;' />
+                    <p>W razie pytań prosimy o kontakt z naszym działem obsługi klienta.</p>
+                    <p style='color: #777;'>Pozdrawiamy,<br />Zespół BistroBoss</p>
+                </body>
+            </html>";
+
+            string messagePickup = $@"
+            <html>
+                <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                    <h2 style='color: #4CAF50;'>Dziękujemy za Twoje zamówienie!</h2>
+                    <p><strong>Numer zamówienia:</strong> {zamowienie.Id}</p>
+                    <p><strong>Data zamówienia:</strong> {zamowienie.DataZamowienia:dd.MM.yyyy HH:mm}</p>
+                    <p><strong>Przewidywany czas realizacji:</strong> {zamowienie.PrzewidywanyCzasRealizacji} minut</p>
+                    <p><strong>Cena całkowita:</strong> {zamowienie.CenaCalkowita} zł</p>
+                    <hr style='margin: 20px 0;' />
+                    <p>W razie pytań prosimy o kontakt z naszym działem obsługi klienta.</p>
+                    <p style='color: #777;'>Pozdrawiamy,<br />Zespół BistroBoss</p>
+                </body>
+            </html>";
+
+            if (zamowienie.SposobDostawy)
+                _emailService.SendEmail(zamowienie.Email, "Nowe zamówienie", messageDelivery);
+            else
+                _emailService.SendEmail(zamowienie.Email, "Nowe zamówienie", messagePickup);
+
+
+
             var dtoOut = new ZamowienieDto
             {
                 Id = zamowienie.Id,
@@ -84,6 +126,7 @@ namespace BistroBossAPI.Services
 
             return (true, dtoOut, "");
         }
+
 
         public async Task<bool> IsOrderForUser(string? userId)
         {
@@ -259,8 +302,46 @@ namespace BistroBossAPI.Services
             _dbContext.Zamowienia.Add(newOrder);
             await _dbContext.SaveChangesAsync();
 
+            string messageDelivery = $@"
+            <html>
+                <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                    <h2 style='color: #4CAF50;'>Dziękujemy za Twoje zamówienie!</h2>
+                    <p><strong>Numer zamówienia:</strong> {newOrder.Id}</p>
+                    <p><strong>Data zamówienia:</strong> {newOrder.DataZamowienia:dd.MM.yyyy HH:mm}</p>
+                    <p><strong>Przewidywany czas realizacji:</strong> {newOrder.PrzewidywanyCzasRealizacji} minut</p>
+                    <p><strong>Cena całkowita:</strong> {newOrder.CenaCalkowita} zł</p>
+                    <p><strong>Adres dostawy:</strong><br />
+                        {newOrder.Miejscowosc}, {newOrder.Ulica} {newOrder.NumerBudynku}<br />
+                        {newOrder.KodPocztowy}
+                    </p>
+                    <hr style='margin: 20px 0;' />
+                    <p>W razie pytań prosimy o kontakt z naszym działem obsługi klienta.</p>
+                    <p style='color: #777;'>Pozdrawiamy,<br />Zespół BistroBoss</p>
+                </body>
+            </html>";
+
+            string messagePickup = $@"
+            <html>
+                <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                    <h2 style='color: #4CAF50;'>Dziękujemy za Twoje zamówienie!</h2>
+                    <p><strong>Numer zamówienia:</strong> {newOrder.Id}</p>
+                    <p><strong>Data zamówienia:</strong> {newOrder.DataZamowienia:dd.MM.yyyy HH:mm}</p>
+                    <p><strong>Przewidywany czas realizacji:</strong> {newOrder.PrzewidywanyCzasRealizacji} minut</p>
+                    <p><strong>Cena całkowita:</strong> {newOrder.CenaCalkowita} zł</p>
+                    <hr style='margin: 20px 0;' />
+                    <p>W razie pytań prosimy o kontakt z naszym działem obsługi klienta.</p>
+                    <p style='color: #777;'>Pozdrawiamy,<br />Zespół BistroBoss</p>
+                </body>
+            </html>";
+
+            if (newOrder.SposobDostawy)
+                _emailService.SendEmail(newOrder.Email, "Nowe zamówienie", messageDelivery);
+            else
+                _emailService.SendEmail(newOrder.Email, "Nowe zamówienie", messagePickup);
+
             return (true, newOrder, null);
         }
+
         public async Task<(bool Success, string? ErrorMessage)> AddReviewAsync(AddReviewDto dto, string userId)
         {
             var order = await _dbContext.Zamowienia
