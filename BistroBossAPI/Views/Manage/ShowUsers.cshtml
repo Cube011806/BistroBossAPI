@@ -38,46 +38,50 @@
             <div class="row">
                 @foreach (var user in Model)
                 {
-                    <div class="col-md-4 mb-4">
-                        <div class="card shadow-lg border-0">
-                            <div class="card-header">
-                                <h4>@user.Email</h4>
-                            </div>
-                            <div class="card-body">
-                                <p>
-                                    Poziom dostępu:
-                                    <span>
-                                        @if (user.AccessLevel == 2)
-                                        {
-                                            <b>Właściciel</b>
-                                        }
-                                        else if (user.AccessLevel == 1)
-                                        {
-                                            <b>Pracownik</b>
-                                        }
-                                        else
-                                        {
-                                            <b>Użytkownik</b>
-                                        }
-                                    </span>
-                                </p>
+                    @if(user.Id != "GUEST")
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow-lg border-0">
+                                <div class="card-header">
+                                    <h4>@user.Email</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p>
+                                        Poziom dostępu:
+                                        <span>
+                                            @if (user.AccessLevel == 2)
+                                            {
+                                                <b>Właściciel</b>
+                                            }
+                                            else if (user.AccessLevel == 1)
+                                            {
+                                                <b>Pracownik</b>
+                                            }
+                                            else
+                                            {
+                                                <b>Użytkownik</b>
+                                            }
+                                        </span>
+                                    </p>
 
-                                @if (user.AccessLevel == 0)
-                                {
-                                    <a asp-action="MakeAdmin" asp-route-id="@user.Id" class="btn btn-info">Uczyń pracownikiem</a>
-                                }
-                                else if (user.AccessLevel > 0 && user.Id != currentUser.Id)
-                                {
-                                    <a asp-action="UnmakeAdmin" asp-route-id="@user.Id" class="btn btn-info">Uczyń użytkownikiem</a>
-                                }
+                                    @if (user.AccessLevel == 0)
+                                    {
+                                        <a asp-action="MakeAdmin" asp-route-id="@user.Id" class="btn btn-info">Uczyń pracownikiem</a>
+                                    }
+                                    else if (user.AccessLevel > 0 && user.Id != currentUser.Id)
+                                    {
+                                        <a asp-action="UnmakeAdmin" asp-route-id="@user.Id" class="btn btn-info">Uczyń użytkownikiem</a>
+                                    }
 
-                                @if (user.AccessLevel != 2)
-                                {
-                                    <a asp-action="RemoveUser" asp-route-id="@user.Id" class="btn btn-danger">Usuń użytkownika</a>
-                                }
+                                    @if (user.AccessLevel != 2)
+                                    {
+                                        <a asp-action="RemoveUser" asp-route-id="@user.Id" class="btn btn-danger">Usuń użytkownika</a>
+                                    }
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
+
                 }
             </div>
         }
