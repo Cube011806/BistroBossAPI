@@ -155,6 +155,7 @@ namespace BistroBossAPI.Services
             var dto = new ZamowienieDetailsDto
             {
                 Id = zamowienie.Id,
+                UzytkownikId = zamowienie.UzytkownikId,
                 DataZamowienia = zamowienie.DataZamowienia,
                 CenaCalkowita = zamowienie.CenaCalkowita,
                 PrzewidywanyCzasRealizacji = zamowienie.PrzewidywanyCzasRealizacji,
@@ -371,6 +372,12 @@ namespace BistroBossAPI.Services
             await _dbContext.SaveChangesAsync();
 
             return (true, null);
+        }
+
+        public async Task UpdateOrderAsync(Zamowienie order)
+        {
+            _dbContext.Zamowienia.Update(order);
+            await _dbContext.SaveChangesAsync();
         }
 
 

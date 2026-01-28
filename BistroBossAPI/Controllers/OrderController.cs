@@ -43,20 +43,24 @@ namespace BistroBossAPI.Controllers
 
         public async Task<IActionResult> ShowOrder(int id)
         {
+            _httpClient.DefaultRequestHeaders.Authorization = null;
 
             if (User.Identity.IsAuthenticated)
             {
                 var user = await _userManager.GetUserAsync(User);
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
+                if (user != null)
+                {
+                    var token = user.GenerateJwtToken(_configuration);
+                    _httpClient.DefaultRequestHeaders.Authorization =
+                        new AuthenticationHeaderValue("Bearer", token);
+                }
             }
-
-            ViewBag.IsGuest = User.Identity.IsAuthenticated ? "0" : "1";
 
             var response = await _httpClient.GetAsync($"http://localhost:7000/api/orders/{id}");
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["ErrorMessage"] = "Nie znaleziono zamówienia.";
+                TempData["ErrorMessage"] = "Nie można wyświetlić zamówienia.";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -66,6 +70,7 @@ namespace BistroBossAPI.Controllers
 
             return View(order);
         }
+
         public async Task<IActionResult> ShowOrderAdmin(int id)
         {
 
@@ -226,6 +231,16 @@ namespace BistroBossAPI.Controllers
 
             TempData["SuccessMessage"] = "Pomyślnie dodano opinię!";
             return RedirectToAction("ShowOrder", new { id = opinia.ZamowienieId });
+        }
+
+        // W OrderController.cs
+        public async Task<IActionResult> CancelMyOrder(int id)
+        {
+            await SetJwtAsync();
+
+            var response = await _httpClient.PutAsync($"http://localhost:7000/api/orders/{id}/cancel", null);
+
+            return RedirectToAction("ShowOrder", new { id });
         }
 
     }

@@ -140,7 +140,7 @@
             }
             @if (Model.Status == 1)
             {
-                <a asp-action="CancelOrder" asp-route-id="@Model.Id" class="btn btn-danger text-white">Anuluj zamówienie</a>
+                <a asp-action="CancelMyOrder" asp-route-id="@Model.Id" class="btn btn-danger text-white">Anuluj zamówienie</a>
             }
             else if (Model.Status == 4 && Model.Opinia == null && ViewBag.IsGuest == "0")
             {

@@ -113,7 +113,7 @@ namespace BistroBossAPI.Controllers
         {
             await SetJwtAsync();
             await _httpClient.DeleteAsync($"http://localhost:7000/api/manage/orders/{id}");
-            return RedirectToAction("ShowAllOrders");
+            return RedirectToAction("ShowAllOrders","Order");
         }
 
         public async Task<IActionResult> ShowUsers()

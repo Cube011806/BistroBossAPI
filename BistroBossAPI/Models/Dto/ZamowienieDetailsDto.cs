@@ -3,6 +3,7 @@
     public class ZamowienieDetailsDto
     {
         public int Id { get; set; }
+        public string? UzytkownikId { get; set; }
         public DateTime DataZamowienia { get; set; }
         public float CenaCalkowita { get; set; }
         public int PrzewidywanyCzasRealizacji { get; set; }

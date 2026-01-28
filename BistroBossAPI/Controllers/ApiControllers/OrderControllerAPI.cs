@@ -43,19 +43,27 @@ namespace BistroBossAPI.Controllers.ApiControllers
 
         // Przykład: GET /api/orders/15
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetOrder(int id)
         {
-            if(!await _userManager.IsAdminAsync(User) && !await _orderService.IsOrderForUser(_userManager.GetUserId(User)))
-            {
-                return Unauthorized();
-            }
-
             var result = await _orderService.GetOrderAsync(id);
 
             if (!result.Success || result.Zamowienie == null)
                 return NotFound(new { message = result.ErrorMessage });
 
-            return Ok(result.Zamowienie);
+            var zamowienie = result.Zamowienie;
+
+            var currentUserId = _userManager.GetUserId(User);
+            var isAdmin = await _userManager.IsAdminAsync(User);
+
+            if (zamowienie.UzytkownikId == "GUEST" ||
+                isAdmin ||
+                (currentUserId != null && zamowienie.UzytkownikId == currentUserId))
+            {
+                return Ok(zamowienie);
+            }
+
+            return Unauthorized(new { message = "Nie masz uprawnień do podglądu tego zamówienia!" });
         }
 
         // Przykład: GET /api/orders/user/abc123
@@ -145,6 +153,28 @@ namespace BistroBossAPI.Controllers.ApiControllers
                 return BadRequest(new { message = result.ErrorMessage });
 
             return Ok(new { message = "Pomyślnie dodano opinię!" });
+        }
+
+        // PUT /api/orders/3/cancel
+        [HttpPut("{id}/cancel")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CustomerCancelOrder(int id)
+        {
+            var result = await _orderService.GetOrderEntityAsync(id);
+            if (!result.Success || result.Zamowienie == null) return NotFound();
+
+            var order = result.Zamowienie;
+
+            var currentUserId = _userManager.GetUserId(User) ?? "GUEST";
+
+            if (order.UzytkownikId != currentUserId) return Unauthorized();
+
+            if (order.Status != 1) return BadRequest(new { message = "Nie można anulować zamówienia w realizacji." });
+
+            order.Status = 0;
+            await _orderService.UpdateOrderAsync(order);
+
+            return Ok(new { message = "Zamówienie zostało anulowane." });
         }
 
     }
