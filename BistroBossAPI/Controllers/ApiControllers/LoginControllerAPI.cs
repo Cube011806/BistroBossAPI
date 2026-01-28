@@ -49,7 +49,7 @@ namespace BistroBossAPI.Controllers.ApiControllers
                 {
                     userId = user.Id,
                     token = token,
-                    expiration = DateTime.UtcNow.AddHours(3)
+                    expiration = expireDate
                 });
             }
 
