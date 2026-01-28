@@ -10,8 +10,8 @@ namespace BistroBossAPI.Controllers
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController> logger, ProductService productService, 
-            BasketService basketService, CheckoutService checkoutService, OrderService orderService) 
-            : base(productService, basketService, checkoutService, orderService)
+            BasketService basketService, CheckoutService checkoutService, OrderService orderService, ManageService manageService) 
+            : base(productService, basketService, checkoutService, orderService, manageService)
         {
             _logger = logger;
         }

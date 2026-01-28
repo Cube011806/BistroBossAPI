@@ -12,14 +12,16 @@ namespace BistroBossAPI.Controllers
         protected readonly BasketService _basketService;
         protected readonly CheckoutService _checkoutService;
         protected readonly OrderService _orderService;
+        protected readonly ManageService _manageService;
 
         public BaseController(ProductService productService, BasketService basketService, 
-            CheckoutService checkoutService, OrderService orderService)
+            CheckoutService checkoutService, OrderService orderService, ManageService manageService)
         {
             _productService = productService;
             _basketService = basketService;
             _checkoutService = checkoutService;
             _orderService = orderService;
+            _manageService = manageService;
         }
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)

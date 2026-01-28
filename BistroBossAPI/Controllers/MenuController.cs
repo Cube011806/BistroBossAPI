@@ -17,17 +17,16 @@ namespace BistroBossAPI.Controllers
 
         public MenuController(HttpClient httpClient, UserManager<Uzytkownik> userManager, 
             ProductService productService, BasketService basketService, 
-            CheckoutService checkoutService, OrderService orderService, IConfiguration configuration)
-            : base(productService, basketService, checkoutService, orderService)
+            CheckoutService checkoutService, OrderService orderService, ManageService manageService, IConfiguration configuration)
+            : base(productService, basketService, checkoutService, orderService, manageService)
         {
             _httpClient = httpClient;
             _userManager = userManager;
             _configuration = configuration;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? kategoriaId)
         {
-
             if (User.Identity.IsAuthenticated)
             {
                 var user = await _userManager.GetUserAsync(User);
@@ -45,6 +44,12 @@ namespace BistroBossAPI.Controllers
             var json = await response.Content.ReadAsStringAsync();
             var kategorie = JsonSerializer.Deserialize<List<KategoriaMenuDto>>(json,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (kategoriaId.HasValue)
+            {
+                var przefiltrowane = kategorie.Where(k => k.Id == kategoriaId.Value).ToList();
+                return View(przefiltrowane);
+            }
 
             return View(kategorie);
         }

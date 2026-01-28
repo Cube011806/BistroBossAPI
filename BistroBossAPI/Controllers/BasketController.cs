@@ -20,10 +20,11 @@ public class BasketController : BaseController
         BasketService basketService,
         CheckoutService checkoutService,
         OrderService orderService,
+        ManageService manageService,
         UserManager<Uzytkownik> userManager,
         HttpClient httpClient,
         IConfiguration configuration)
-        : base(productService, basketService, checkoutService, orderService)
+        : base(productService, basketService, checkoutService, orderService, manageService)
     {
         _userManager = userManager;
         _httpClient = httpClient;

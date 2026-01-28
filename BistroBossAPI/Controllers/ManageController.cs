@@ -17,8 +17,8 @@ namespace BistroBossAPI.Controllers
 
         public ManageController(HttpClient httpClient, UserManager<Uzytkownik> userManager,
             ProductService productService, BasketService basketService,
-            CheckoutService checkoutService, OrderService orderService, IConfiguration configuration)
-            : base(productService, basketService, checkoutService, orderService)
+            CheckoutService checkoutService, OrderService orderService, ManageService manageService, IConfiguration configuration)
+            : base(productService, basketService, checkoutService, orderService, manageService)
         {
             _httpClient = httpClient;
             _userManager = userManager;

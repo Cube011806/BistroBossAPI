@@ -17,8 +17,8 @@ public class CheckoutController : BaseController
 
     public CheckoutController(UserManager<Uzytkownik> userManager, HttpClient httpClient,
         ProductService productService, BasketService basketService,
-        CheckoutService checkoutService, OrderService orderService, IConfiguration configuration)
-        : base(productService, basketService, checkoutService, orderService)
+        CheckoutService checkoutService, OrderService orderService, ManageService manageService, IConfiguration configuration)
+        : base(productService, basketService, checkoutService, orderService, manageService)
     {
         _userManager = userManager;
         _httpClient = httpClient;
