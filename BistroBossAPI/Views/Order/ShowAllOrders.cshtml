@@ -135,7 +135,7 @@
                                 <a asp-action="ShowOrder" asp-route-id="@zamowienie.Id" class="btn btn-info text-white">Zarządzaj</a>
                                 @if (User.Identity.IsAuthenticated && UserManager.FindByIdAsync(id).Result.AccessLevel == 2)
                                 {
-                                    <a asp-action="DeleteOrder" asp-route-id="@zamowienie.Id" class="btn btn-danger text-white">Usuń</a>
+                                    <a asp-controller="Manage" asp-action="DeleteOrder" asp-route-id="@zamowienie.Id" class="btn btn-danger text-white">Usuń</a>
                                 }
                             </td>
                         </tr>
