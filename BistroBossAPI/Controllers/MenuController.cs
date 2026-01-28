@@ -43,7 +43,6 @@ namespace BistroBossAPI.Controllers
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            // Ignorujemy wielkosc liter (bo w modelu jest Id, a w jsonie id i był błąd
             var kategorie = JsonSerializer.Deserialize<List<KategoriaMenuDto>>(json,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -60,7 +59,6 @@ namespace BistroBossAPI.Controllers
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
             }
 
-            // Gość
             if (!User.Identity.IsAuthenticated)
             {
                 var json = HttpContext.Session.GetString("basket");
@@ -69,7 +67,6 @@ namespace BistroBossAPI.Controllers
                     ? new KoszykGuestDto()
                     : JsonSerializer.Deserialize<KoszykGuestDto>(json);
 
-                // pobieramy produkt z ProductService (BaseController)
                 var produkt = await _productService.GetProductByIdAsync(produktId);
 
                 var existing = basket.KoszykProdukty.FirstOrDefault(p => p.ProduktId == produktId);
@@ -94,7 +91,6 @@ namespace BistroBossAPI.Controllers
                 return RedirectToAction("Index", "Menu");
             }
 
-            // Zalogowany
             var userId = _userManager.GetUserId(User);
 
             var response = await _httpClient.PostAsync(

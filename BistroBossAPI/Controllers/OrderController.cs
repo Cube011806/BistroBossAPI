@@ -142,11 +142,9 @@ namespace BistroBossAPI.Controllers
 
                 var json = await response.Content.ReadAsStringAsync();
 
-                // Deserializujemy POJEDYNCZE zamówienie
                 var zamowienie = JsonSerializer.Deserialize<ZamowienieDto>(json,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                // Widok oczekuje listy → tworzymy listę z jednym elementem
                 return View(new List<ZamowienieDto> { zamowienie });
             }
             else
@@ -162,7 +160,6 @@ namespace BistroBossAPI.Controllers
 
                 var json = await response.Content.ReadAsStringAsync();
 
-                // tutaj API zwraca listę → deserializujemy listę
                 var zamowienia = JsonSerializer.Deserialize<List<ZamowienieDto>>(json,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 

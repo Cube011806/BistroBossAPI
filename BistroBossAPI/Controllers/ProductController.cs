@@ -18,7 +18,7 @@ namespace BistroBossAPI.Controllers
     public class ProductController : BaseController
     {
         private readonly UserManager<Uzytkownik> _userManager;
-        private readonly HttpClient _httpClient; // Klient HTTP
+        private readonly HttpClient _httpClient;
         private readonly ProductService _productService;
         private readonly IConfiguration _configuration;
         
@@ -30,7 +30,7 @@ namespace BistroBossAPI.Controllers
             OrderService orderService,
             UserManager<Uzytkownik> userManager,
             HttpClient httpClient,
-            IConfiguration configuration) // Wstrzyknięcie klienta HTTP
+            IConfiguration configuration)
             : base(productService, basketService, checkoutService, orderService)
         {
             _userManager = userManager;
@@ -77,7 +77,6 @@ namespace BistroBossAPI.Controllers
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
             }
 
-            // Zapis do pliku
             if (zdjeciePlik != null && zdjeciePlik.Length > 0)
             {
                 var folderPath = Path.Combine("wwwroot", "images", "produkty");
@@ -93,13 +92,11 @@ namespace BistroBossAPI.Controllers
                 dto.Zdjecie = "/images/produkty/" + uniqueFileName;
             }
 
-            // Wysyłanie żądania do api
             var json = JsonSerializer.Serialize(dto);
             var apiPath = $"http://localhost:7000/api/products?nowaKategoria={nowaKategoria}";
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(apiPath, content);
 
-            // Obsługa wyniku z api
             if (response.IsSuccessStatusCode)
             {
                 TempData["SuccessMessage"] = "Produkt został pomyślnie dodany!";
@@ -107,7 +104,6 @@ namespace BistroBossAPI.Controllers
             }
             else
             {
-                // Próba odczytu komunikatu błędu z ciała odpowiedzi API
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 string ? errorMessage;
@@ -136,7 +132,6 @@ namespace BistroBossAPI.Controllers
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GenerateJwtToken(_configuration));
             }
 
-            // Wysyłanie żądania do api
             var response = await _httpClient.GetAsync($"http://localhost:7000/api/products/{id}");
 
             if (!response.IsSuccessStatusCode)

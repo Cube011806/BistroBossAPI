@@ -19,7 +19,6 @@ namespace BistroBossAPI.Controllers.ApiControllers
         private readonly BasketService _basketService;
         private readonly UserManager<Uzytkownik> _userManager;
 
-        // Wstrzykujemy Serwis
         public BasketControllerAPI(BasketService basketService, UserManager<Uzytkownik> userManager)
         {
             _basketService = basketService;

@@ -69,7 +69,6 @@ public class CheckoutController : BaseController
             ? "GUEST"
             : _userManager.GetUserId(User);
 
-        // Jeśli gość → wysyłamy koszyk z session do api
         if (isGuest)
         {
             var jsonBasket = HttpContext.Session.GetString("basket");
@@ -93,7 +92,6 @@ public class CheckoutController : BaseController
             }
         }
 
-        // Zamowienie
         var json = JsonSerializer.Serialize(dto);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -109,7 +107,6 @@ public class CheckoutController : BaseController
         var zamowienie = JsonSerializer.Deserialize<ZamowienieDto>(responseJson,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-        // Czyścimy koszyk z sesji (pusty koszyk po złożżeniu zamówienia)
         HttpContext.Session.Remove("basket");
 
         TempData["SuccessMessage"] = "Zamówienie zostało złożone, dziękujemy! Numer zamówienia: " + zamowienie.Id;

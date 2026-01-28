@@ -38,7 +38,6 @@ namespace BistroBossAPI.Controllers.ApiControllers
 
             var user = await _userManager.FindByNameAsync(model.UserName);
 
-            // Sprawdzenie poprawności hasła
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
                 var expireDate = model.RememberMe ? DateTime.UtcNow.AddYears(10) : DateTime.UtcNow.AddHours(3);
@@ -83,7 +82,7 @@ namespace BistroBossAPI.Controllers.ApiControllers
             var token = new JwtSecurityToken(
                 issuer: configuration["Jwt:Issuer"],
                 audience: configuration["Jwt:Audience"],
-                expires: expires, // Używamy przekazanej daty
+                expires: expires, 
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
             );

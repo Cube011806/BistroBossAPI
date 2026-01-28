@@ -19,7 +19,6 @@ namespace BistroBossAPI.Controllers.ApiControllers
         private readonly ProductService _productService;
         private readonly UserManager<Uzytkownik> _userManager;
 
-        // Wstrzykujemy Serwis
         public ProductControllerAPI(ProductService productService, UserManager<Uzytkownik> userManager)
         {
             _productService = productService;
@@ -27,7 +26,6 @@ namespace BistroBossAPI.Controllers.ApiControllers
         }
 
         // Przykład: GET /api/products/menu
-        // Zwraca listę kategorii z produktami (do widoku Menu)
         [HttpGet("menu")]
         public async Task<IActionResult> GetMenu()
         {
@@ -36,7 +34,6 @@ namespace BistroBossAPI.Controllers.ApiControllers
         }
 
         // Przykład: GET /api/products/{id}
-        // Pobiera jeden produkt
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProductById(int id)
         {
@@ -44,10 +41,10 @@ namespace BistroBossAPI.Controllers.ApiControllers
 
             if (produkt == null)
             {
-                return NotFound(); // Zwraca 404
+                return NotFound(); 
             }
 
-            return Ok(produkt); // Zwraca 200 z obiektem Produkt
+            return Ok(produkt); 
         }
 
         // Przykład: POST /api/products?nowaKategoria=Napój
@@ -61,22 +58,17 @@ namespace BistroBossAPI.Controllers.ApiControllers
 
             if (!ModelState.IsValid)
             {
-                // Ręczne zwrócenie problemu, jeśli dane są strukturalnie niepoprawne
                 return BadRequest(ModelState);
             }
 
-            // Kontroler API jest serwerem, a Serwis to jego silnik.
             var (success, produkt, errorMessage) = await _productService.AddProductAsync(dto, nowaKategoria);
 
-            // Obsługa Wyniku
             if (success)
             {
-                // 201 Created (Zasób został pomyślnie utworzony).
                 return Created($"api/products/{produkt!.Id}", produkt);
             }
             else
             {
-                // 400 Bad Request (Dane są niepoprawne).
                 return BadRequest(new { message = errorMessage });
             }
         }

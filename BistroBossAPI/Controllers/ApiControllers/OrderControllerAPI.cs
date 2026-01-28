@@ -109,13 +109,11 @@ namespace BistroBossAPI.Controllers.ApiControllers
             if (userId == null)
                 return Unauthorized();
 
-            // Sprawdzenie czy użytkownik ma aktywne zamówienie
             if (await _orderService.HasActiveOrderAsync(userId))
             {
                 return BadRequest(new { message = "Żeby ponownie coś zamówić, nie możesz mieć zamówienia aktualnie w realizacji!" });
             }
 
-            // Pobranie starego zamówienia
             var oldOrderResult = await _orderService.GetOrderEntityAsync(id);
 
             if (!oldOrderResult.Success || oldOrderResult.Zamowienie == null)
@@ -123,7 +121,6 @@ namespace BistroBossAPI.Controllers.ApiControllers
 
             var oldOrder = oldOrderResult.Zamowienie;
 
-            // Tworzenie nowego zamówienia
             var newOrder = await _orderService.ReOrderAsync(oldOrder, userId, dto);
 
             if (!newOrder.Success)
