@@ -11,7 +11,6 @@ namespace BistroBossAPI.Models
         public DateTime DataZamowienia { get; set; }
         public float CenaCalkowita { get; set; }
         public int PrzewidywanyCzasRealizacji { get; set; }
-        //public int StatusId { get; set; }
         public int Status { get; set; } = 0; // 1 -złożono 2- w przygotowaniu 3 - w dostawie 4 - zrealizowano 3 - gotowe do odbioru 0 - anulowane
                                              //public virtual Status Status { get; set; } = null!;
 
@@ -31,7 +30,6 @@ namespace BistroBossAPI.Models
         [Required(ErrorMessage = "Kod pocztowy jest wymagany.")]
         public string KodPocztowy { get; set; } = string.Empty;
 
-        // Nowe pole określające typ dostawy: true - dostawa, false - odbiór osobisty
         public bool SposobDostawy { get; set; }
 
         [Required(ErrorMessage = "Imię jest wymagane.")]
@@ -49,14 +47,10 @@ namespace BistroBossAPI.Models
         [Required(ErrorMessage = "Numer telefonu jest wymagany.")]
         [Phone(ErrorMessage = "Niepoprawny format numeru telefonu.")]
         public string NumerTelefonu { get; set; } = string.Empty;
-        //public int DostawaId { get; set; }
-        //public virtual Dostawa Dostawa { get; set; } = null!;
         public int? OpiniaId { get; set; }
         public virtual Opinia Opinia { get; set; }
         public string? UzytkownikId { get; set; }
         public virtual Uzytkownik Uzytkownik { get; set; } = null!;
         public virtual ICollection<ZamowienieProdukt> ZamowioneProdukty { get; set; } = new List<ZamowienieProdukt>();
-        //public virtual Koszyk Koszyk { get; set; }
-        //public int KoszykId { get; set; }
     }
 }

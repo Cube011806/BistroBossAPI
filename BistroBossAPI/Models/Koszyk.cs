@@ -10,7 +10,7 @@ namespace BistroBossAPI.Models
         public virtual Uzytkownik? Uzytkownik { get; set; }
 
         public virtual ICollection<KoszykProdukt> KoszykProdukty { get; set; } = new List<KoszykProdukt>();
-        public int? ZamowienieId { get; set; } // <- nullable int
+        public int? ZamowienieId { get; set; }
         public virtual Zamowienie? Zamowienie { get; set; }
 
     }

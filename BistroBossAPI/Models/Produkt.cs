@@ -16,7 +16,5 @@ namespace BistroBossAPI.Models
         public int KategoriaId { get; set; }
         public virtual Kategoria Kategoria { get; set; } = null!;
         public virtual ICollection<ZamowienieProdukt> ZamowieniaProduktu { get; set; } = new List<ZamowienieProdukt>();
-        //public int KoszykId { get; set; }
-        //public virtual ICollection<Koszyk> Koszyki { get; set; } = null!;
     }
 }

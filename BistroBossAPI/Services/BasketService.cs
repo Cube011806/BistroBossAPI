@@ -106,7 +106,6 @@ namespace BistroBossAPI.Services
         }
         public async Task<bool> SetGuestBasketAsync(KoszykGuestDto dto)
         {
-            // usuń stary koszyk gościa
             var old = await _dbContext.Koszyki
                 .Include(k => k.KoszykProdukty)
                 .Where(k => k.UzytkownikId == "GUEST")
@@ -119,7 +118,6 @@ namespace BistroBossAPI.Services
                 await _dbContext.SaveChangesAsync();
             }
 
-            // utwórz nowy koszyk
             var koszyk = new Koszyk
             {
                 UzytkownikId = "GUEST"

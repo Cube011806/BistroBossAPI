@@ -37,8 +37,6 @@ namespace BistroBossAPI.Models.Dto
         [Required(ErrorMessage = "Kod pocztowy jest wymagany.")]
         [MaxLength(10)]
         public string KodPocztowy { get; set; } = "";
-
-        // true = dostawa, false = odbiór osobisty
         public bool SposobDostawy { get; set; } = true;
 
         public bool IsGuest { get; set; }

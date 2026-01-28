@@ -1,5 +1,4 @@
-﻿// Services/ProductService.cs 
-using BistroBossAPI.Data;
+﻿using BistroBossAPI.Data;
 using BistroBossAPI.Models;
 using BistroBossAPI.Models.Dto;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +39,6 @@ namespace BistroBossAPI.Services
             };
         }
 
-        //Pobranie produktów z menu
         public async Task<List<KategoriaMenuDto>> GetMenuDtoAsync()
         {
             var kategorie = await _dbContext.Kategorie
@@ -62,10 +60,8 @@ namespace BistroBossAPI.Services
             }).ToList();
         }
 
-        //Dodanie produktu
         public async Task<(bool Success, ProduktDto? Produkt, string ErrorMessage)> AddProductAsync(ProduktAddDto dto, string? nowaKategoria)
         {
-            // Walidacja danych
             if (string.IsNullOrWhiteSpace(dto.Nazwa) || string.IsNullOrWhiteSpace(dto.Opis))
                 return (false, null, "Nazwa oraz opis produktu nie mogą być puste!");
 
@@ -77,7 +73,6 @@ namespace BistroBossAPI.Services
 
             int kategoriaId = dto.KategoriaId;
 
-            // Obsługa dodawania nowej kategorii
             if (!string.IsNullOrWhiteSpace(nowaKategoria))
             {
                 if (dto.KategoriaId != 0)
@@ -97,7 +92,6 @@ namespace BistroBossAPI.Services
                 return (false, null, "Musisz wybrać kategorię z listy bądź dodać nową kategorię produktu!");
             }
 
-            // Tworzenie produktu na podstawie DTO
             var produkt = new Produkt
             {
                 Nazwa = dto.Nazwa,
@@ -108,7 +102,6 @@ namespace BistroBossAPI.Services
                 KategoriaId = kategoriaId
             };
 
-            // Zapis do bazy
             _dbContext.Produkty.Add(produkt);
             await _dbContext.SaveChangesAsync();
 
@@ -126,7 +119,6 @@ namespace BistroBossAPI.Services
             return (true, produktDto, string.Empty);
         }
 
-        //Edycja produktu
         public async Task<(bool Success, ProduktDto? Produkt, string ErrorMessage)> UpdateProductAsync(int id, ProduktEditDto dto, string? nowaKategoria)
         {
             var produkt = await _dbContext.Produkty.FirstOrDefaultAsync(p => p.Id == id);
@@ -190,7 +182,6 @@ namespace BistroBossAPI.Services
             return (true, produktDto, string.Empty);
         }
 
-        //Usunięcie produktu
         public async Task<(bool Success, string ErrorMessage)> DeleteProductAsync(int id)
         {
             var produkt = await _dbContext.Produkty.FirstOrDefaultAsync(p => p.Id == id);
@@ -203,7 +194,6 @@ namespace BistroBossAPI.Services
             _dbContext.Produkty.Remove(produkt);
             await _dbContext.SaveChangesAsync();
 
-            // Sprawdzenie czy kategoria jest pusta
             bool czyPusta = !await _dbContext.Produkty.AnyAsync(p => p.KategoriaId == kategoriaId);
 
             if (czyPusta)
