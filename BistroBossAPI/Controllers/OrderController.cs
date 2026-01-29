@@ -54,6 +54,7 @@ namespace BistroBossAPI.Controllers
                     _httpClient.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue("Bearer", token);
                 }
+                ViewBag.IsGuest = "0";
             }
 
             var response = await _httpClient.GetAsync($"http://localhost:7000/api/orders/{id}");
@@ -193,7 +194,7 @@ namespace BistroBossAPI.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["ErrorMessage"] = await response.Content.ReadAsStringAsync();
+                TempData["ErrorMessage"] = "Żeby ponownie coś zamówić, nie możesz mieć zamówienia aktualnie w realizacji!";
                 return RedirectToAction("ShowOrder", new { id });
             }
 
@@ -233,7 +234,6 @@ namespace BistroBossAPI.Controllers
             return RedirectToAction("ShowOrder", new { id = opinia.ZamowienieId });
         }
 
-        // W OrderController.cs
         public async Task<IActionResult> CancelMyOrder(int id)
         {
             await SetJwtAsync();

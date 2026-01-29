@@ -113,6 +113,7 @@ namespace BistroBossAPI.Controllers
         {
             await SetJwtAsync();
             await _httpClient.DeleteAsync($"http://localhost:7000/api/manage/orders/{id}");
+            TempData["SuccessMessage"] = "Zamówienie zostało pomyślnie usunięte!";
             return RedirectToAction("ShowAllOrders","Order");
         }
 
@@ -139,6 +140,7 @@ namespace BistroBossAPI.Controllers
         {
             await SetJwtAsync();
             await _httpClient.PutAsync($"http://localhost:7000/api/manage/users/{id}/admin", null);
+            TempData["SuccessMessage"] = "Zwykły użytkownik pomyślnie został mianowany pracownikiem!";
             return RedirectToAction("ShowUsers");
         }
 
@@ -146,6 +148,7 @@ namespace BistroBossAPI.Controllers
         {
             await SetJwtAsync();
             await _httpClient.PutAsync($"http://localhost:7000/api/manage/users/{id}/unadmin", null);
+            TempData["SuccessMessage"] = "Pracownik pomyślnie został mianowany zwykłym użytkownikiem";
             return RedirectToAction("ShowUsers");
         }
 
@@ -153,6 +156,7 @@ namespace BistroBossAPI.Controllers
         {
             await SetJwtAsync();
             await _httpClient.DeleteAsync($"http://localhost:7000/api/manage/users/{id}");
+            TempData["SuccessMessage"] = "Użytkownik został pomyślnie usunięty!";
             return RedirectToAction("ShowUsers");
         }
     }
